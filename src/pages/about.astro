@@ -1,0 +1,131 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import AndesBackdrop from "../components/AndesBackdrop.astro";
+import Illustration from "../components/Illustration.astro";
+import type { IlloName } from "../data/places";
+
+// Placeholder video data — swap in real YouTube links + thumbnails at launch.
+const featured = {
+  title: "Cuenca in 2026",
+  illo: "dome" as IlloName,
+  href: "#",
+  blurb: "A year-ahead look at the city — what's changing, what to expect on the ground, and whether 2026 is the year to make the move.",
+};
+const videos: { title: string; illo: IlloName; dur: string; href: string }[] = [
+  { title: "The real cost of living in Cuenca", illo: "market", dur: "14:22", href: "#" },
+  { title: "Why I left the US for Ecuador", illo: "facade", dur: "11:08", href: "#" },
+  { title: "A week of expat meals for $40", illo: "terrace", dur: "9:47", href: "#" },
+];
+const inputCls = "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
+const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
+---
+
+<Base title="About — Cuenca Expat Map" description="Remote Solopreneur — building a location-independent business from Cuenca, Ecuador, and making videos about the move abroad.">
+  <Nav active="about" />
+
+  <!-- DARK HERO -->
+  <section class="relative overflow-hidden bg-[#0e1a2e] text-[#f4efe2]">
+    <AndesBackdrop />
+    <div class="pointer-events-none absolute inset-0" style="background:radial-gradient(130% 120% at 12% 30%, rgba(14,26,46,.2), rgba(14,26,46,.85) 75%)"></div>
+    <div class="relative mx-auto flex max-w-[1240px] flex-col gap-8 px-6 pt-16 pb-14 md:flex-row md:items-center">
+      <div class="grid h-24 w-24 flex-none place-items-center rounded-2xl border border-gold/40 bg-gold/15 font-display text-4xl font-semibold text-gold-soft">RS</div>
+      <div>
+        <p class="eyebrow text-[11px] font-bold uppercase text-gold" data-i18n="about_eyebrow">About · the maker</p>
+        <h1 class="mt-2 font-display text-[2.6rem] font-semibold leading-[1.04] tracking-tight sm:text-[3.2rem]" data-i18n="about_title">Remote Solopreneur</h1>
+        <p class="mt-4 max-w-[60ch] text-[15.5px] leading-relaxed text-[#9fb0c6]" data-i18n="about_bio">I'm a one-person business run from a sunny apartment in Cuenca — and I make videos about the move abroad: visas, the real cost of living, and the slow, good day-to-day of expat life in the Ecuadorian Andes. This guide is the map I wish I'd had when I landed.</p>
+        <div class="mt-6 flex flex-wrap gap-2 text-[12px]">
+          <a href="#" class="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3.5 py-1.5 text-[#cdd6e3] transition hover:border-gold hover:text-gold-soft">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21.6 7.2a2.7 2.7 0 0 0-1.9-1.9C18 5 12 5 12 5s-6 0-7.7.3A2.7 2.7 0 0 0 2.4 7.2 28 28 0 0 0 2 12a28 28 0 0 0 .4 4.8 2.7 2.7 0 0 0 1.9 1.9C6 19 12 19 12 19s6 0 7.7-.3a2.7 2.7 0 0 0 1.9-1.9A28 28 0 0 0 22 12a28 28 0 0 0-.4-4.8zM10 15V9l5 3z"></path></svg>
+            <span data-i18n="about_sub">Subscribe on YouTube</span>
+          </a>
+          <a href="#" class="rounded-full border border-white/20 px-3.5 py-1.5 text-[#cdd6e3] transition hover:border-gold hover:text-gold-soft" data-i18n="about_news">Get the newsletter</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEOS -->
+  <section class="mx-auto max-w-[1240px] px-6 py-16 sm:py-20">
+    <p class="eyebrow text-[11px] font-bold uppercase text-cinnabar" data-i18n="watch_eyebrow">Watch</p>
+    <h2 class="mt-2 font-display text-3xl font-semibold tracking-tight text-indigo sm:text-[2.5rem]" data-i18n="videos_title">Videos &amp; guides</h2>
+
+    <!-- Featured (new) -->
+    <a href={featured.href} class="group mt-9 grid overflow-hidden rounded-2xl border border-line bg-marble/50 transition hover:shadow-[0_30px_70px_-38px_rgba(20,35,59,.5)] md:grid-cols-[1.2fr_1fr]">
+      <div class="relative aspect-video overflow-hidden md:aspect-auto">
+        <Illustration name={featured.illo} />
+        <div class="absolute inset-0 bg-indigo/30 transition group-hover:bg-indigo/15"></div>
+        <span class="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-paper/90 text-indigo shadow-lg transition group-hover:scale-110"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+        <span class="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#3a2a08]" data-i18n="new_badge">New · In production</span>
+      </div>
+      <div class="flex flex-col justify-center p-8 sm:p-10">
+        <span class="eyebrow text-[10px] font-bold uppercase text-cinnabar" data-i18n="watch_eyebrow">Watch</span>
+        <h3 class="mt-2 font-display text-[2rem] font-semibold leading-tight text-indigo sm:text-[2.3rem]">{featured.title}</h3>
+        <p class="mt-3 text-[15px] leading-relaxed text-slate">{featured.blurb}</p>
+      </div>
+    </a>
+
+    <!-- Grid -->
+    <div class="mt-7 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {videos.map((v) => (
+        <a href={v.href} class="group block">
+          <div class="relative aspect-video overflow-hidden rounded-xl border border-line">
+            <Illustration name={v.illo} />
+            <div class="absolute inset-0 bg-indigo/25 transition group-hover:bg-indigo/10"></div>
+            <span class="absolute left-1/2 top-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-paper/90 text-indigo shadow-lg transition group-hover:scale-110"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+            <span class="absolute bottom-2.5 right-2.5 rounded bg-indigo/90 px-1.5 py-0.5 text-[11px] font-semibold text-paper">{v.dur}</span>
+          </div>
+          <h3 class="mt-3 font-display text-[1.25rem] font-semibold leading-snug text-indigo transition group-hover:text-cobalt">{v.title}</h3>
+        </a>
+      ))}
+    </div>
+    <p class="mt-6 text-[12px] text-slate">Placeholder titles &amp; thumbnails — swap in real YouTube links and stills.</p>
+  </section>
+
+  <!-- LOW-SELL CTA + FORM -->
+  <section class="border-t border-line bg-marble/60">
+    <div class="mx-auto grid max-w-[1100px] gap-12 px-6 py-16 sm:py-20 lg:grid-cols-[1fr_1.05fr]">
+      <div>
+        <p class="eyebrow text-[11px] font-bold uppercase text-cinnabar" data-i18n="biz_eyebrow">For business owners</p>
+        <h2 class="mt-2 font-display text-3xl font-semibold leading-tight tracking-tight text-indigo sm:text-[2.4rem]"><span data-i18n="cta_title">Is your business missing?</span><br /><span class="text-cinnabar" data-i18n="cta_title2">Add it to the map.</span></h2>
+        <p class="mt-4 max-w-[46ch] text-[15.5px] leading-relaxed text-slate" data-i18n="cta_body">A pin on the map is always free. Featured listings — photos and a full, honest review — are how the service keeps the lights on, but there's no hard sell here. Tell us about your place and we'll take it from there.</p>
+      </div>
+
+      <form id="biz-form" class="rounded-2xl border border-line bg-paper p-7 shadow-[0_24px_50px_-30px_rgba(20,35,59,.35)]">
+        <div class="grid gap-4">
+          <label class="block">
+            <span class={labelCls} data-i18n="form_name">Your name</span>
+            <input type="text" name="name" required class={inputCls} />
+          </label>
+          <label class="block">
+            <span class={labelCls} data-i18n="form_business">Business name</span>
+            <input type="text" name="business" required class={inputCls} />
+          </label>
+          <label class="block">
+            <span class={labelCls} data-i18n="form_email">Email</span>
+            <input type="email" name="email" required class={inputCls} />
+          </label>
+          <label class="block">
+            <span class={labelCls} data-i18n="form_message">Anything we should know? (optional)</span>
+            <textarea name="message" rows="3" class={`${inputCls} resize-none`}></textarea>
+          </label>
+          <button type="submit" class="mt-1 rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft" data-i18n="form_send">Send</button>
+        </div>
+        <p id="form-thanks" class="mt-4 hidden text-sm font-semibold text-green" data-i18n="form_thanks">Thanks — we'll be in touch soon.</p>
+      </form>
+    </div>
+  </section>
+
+  <Footer />
+</Base>
+
+<script>
+  // Static demo — wire to a real endpoint / mailto / form service for production.
+  const form = document.getElementById("biz-form") as HTMLFormElement | null;
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    form.querySelectorAll("input,textarea,button").forEach((el) => ((el as HTMLInputElement).disabled = true));
+    document.getElementById("form-thanks")?.classList.remove("hidden");
+  });
+</script>

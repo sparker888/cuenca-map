@@ -1,0 +1,58 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import AndesBackdrop from "../components/AndesBackdrop.astro";
+import CuencaMapGL from "../components/CuencaMapGL.astro";
+// Revert to the Leaflet map any time: swap the import + tag below for CuencaMap.
+// import CuencaMap from "../components/CuencaMap.astro";
+import ReviewCard from "../components/ReviewCard.astro";
+import { reviews } from "../data/reviews";
+---
+
+<Base title="Cuenca — Expat Map">
+  <Nav active="map" />
+
+  <!-- DARK HERO + MAP -->
+  <section class="relative overflow-hidden bg-[#0e1a2e] text-[#f4efe2]">
+    <AndesBackdrop class="absolute inset-x-0 top-0 h-[420px] w-full" />
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-[420px]" style="background:linear-gradient(180deg, rgba(14,26,46,0) 32%, rgba(14,26,46,.82) 78%, #0e1a2e 100%), radial-gradient(130% 100% at 12% 25%, rgba(14,26,46,.22), rgba(14,26,46,.55) 72%)"></div>
+
+    <div class="relative mx-auto max-w-[1240px] px-6 pt-14 pb-6 sm:pt-16">
+      <p class="eyebrow text-[11px] font-bold uppercase text-gold" data-i18n="hero_eyebrow">Ecuador · South America</p>
+      <h1 class="mt-3 max-w-[17ch] font-display text-4xl font-semibold leading-[1.03] tracking-tight sm:text-[3.4rem]" data-i18n="hero_title">The places expats love in Cuenca</h1>
+      <p class="mt-4 max-w-[52ch] text-[15.5px] leading-relaxed text-[#9fb0c6]" data-i18n="hero_dek">An honest, hand-mapped guide to El Centro and beyond — landmarks, markets, parks, and the cafés worth a long morning.</p>
+      <div class="mt-6 flex flex-wrap gap-2 text-[12px]">
+        <span class="rounded-full border border-white/20 px-3.5 py-1.5 text-[#cdd6e3]" data-i18n="chip_places">20 places</span>
+        <span class="rounded-full border border-white/20 px-3.5 py-1.5 text-[#cdd6e3]" data-i18n="chip_cats">5 categories</span>
+        <a href="/reviews" class="rounded-full border border-white/20 px-3.5 py-1.5 text-[#cdd6e3] transition hover:border-gold hover:text-gold-soft" data-i18n="chip_reviews">Read the reviews →</a>
+      </div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1240px] px-6 pb-12">
+      <CuencaMapGL />
+      <!-- Revert: replace <CuencaMapGL /> with <CuencaMap /> (and swap the import above). -->
+      <p class="mt-3 text-center text-[12px] text-[#7e8ba0]" data-i18n="map_caption">Tap a gold pin to open the listing — featured spots link straight to our full review.</p>
+    </div>
+  </section>
+
+  <!-- REVIEWS SHOWCASE -->
+  <section id="reviews" class="border-t border-line bg-marble/60">
+    <div class="mx-auto max-w-[1240px] px-6 py-16 sm:py-20">
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="eyebrow text-[11px] font-bold uppercase text-cinnabar" data-i18n="show_eyebrow">From the guide</p>
+          <h2 class="mt-2 font-display text-3xl font-semibold tracking-tight text-indigo sm:text-[2.5rem]" data-i18n="show_title">Restaurants we've reviewed</h2>
+        </div>
+        <a href="/reviews" class="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-semibold text-cobalt"><span data-i18n="all_reviews">All reviews</span> <span class="transition group-hover:translate-x-0.5">→</span></a>
+      </div>
+      <p class="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-slate" data-i18n="show_dek">We eat everywhere so you don't have to. These are the spots we keep going back to — written up in full, no sponsored fluff.</p>
+
+      <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {reviews.map((review) => <ReviewCard review={review} />)}
+      </div>
+    </div>
+  </section>
+
+  <Footer variant="full" />
+</Base>

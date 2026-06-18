@@ -1,0 +1,213 @@
+---
+// MapLibre GL version of the map: CARTO Dark Matter vector basemap (no API key)
+// with road/place labels, plus the real rivers recolored light-blue and the
+// major arteries (motorway/trunk/primary) recolored gold.
+// The Leaflet version (CuencaMap.astro) is kept as a one-line revert — see index.astro.
+import { places, categoryMeta } from "../data/places";
+import Illustration from "./Illustration.astro";
+
+const categories = Object.entries(categoryMeta).map(([key, meta]) => ({ key, ...meta }));
+const premium = places.filter((p) => p.tier === "premium" && p.illo);
+---
+
+<div class="relative overflow-hidden rounded-2xl border border-indigo-700/60 shadow-[0_28px_70px_-30px_rgba(0,0,0,.7)]" style="background:#0c1626">
+  <div
+    class="chip-row pointer-events-auto absolute inset-x-0 top-0 z-[610] flex items-center gap-2 overflow-x-auto px-4 py-3.5"
+    id="cm-chips"
+  >
+    <button data-filter="all" class="cm-chip flex-none whitespace-nowrap rounded-full bg-gold px-3.5 py-1.5 text-[13px] font-semibold text-[#3a2a08]">All</button>
+    {categories.map((c) => (
+      <button data-filter={c.key} class="cm-chip flex-none whitespace-nowrap rounded-full border border-white/20 px-3.5 py-1.5 text-[13px] text-[#9fb0c6]"></button>
+    ))}
+  </div>
+
+  <div id="cuenca-map" class="h-[68vh] min-h-[460px] w-full" role="application" aria-label="Map of Cuenca"></div>
+
+  <aside
+    id="cm-panel"
+    class="absolute left-4 top-[64px] z-[620] hidden w-[358px] max-w-[calc(100%-2rem)] overflow-y-auto rounded-2xl border border-white/10 p-5 shadow-2xl"
+    style="max-height:calc(100% - 84px);background:#182742;color:#f4efe2"
+    aria-live="polite"
+  ></aside>
+
+  <div
+    id="cm-legend"
+    class="absolute bottom-9 left-4 z-[600] hidden max-w-[300px] flex-wrap gap-x-3.5 gap-y-1 rounded-xl border border-white/10 px-3.5 py-2.5 text-[12px] backdrop-blur md:flex"
+    style="background:rgba(12,22,38,.86);color:#9fb0c6"
+  ></div>
+
+  <div id="cm-illos" hidden>
+    {premium.map((p) => (
+      <div data-illo-for={p.id}><Illustration name={p.illo!} /></div>
+    ))}
+  </div>
+  <span hidden id="cm-contact" data-email="hello@gravitaldigital.com"></span>
+</div>
+
+<script>
+  import maplibregl from "maplibre-gl";
+  import "maplibre-gl/dist/maplibre-gl.css";
+  import { places, categoryMeta } from "../data/places";
+  import { UI, getLang } from "../i18n/ui";
+  import type { Place, Category } from "../data/places";
+
+  const t = (key: string) => UI[getLang()]?.[key] ?? UI.en[key] ?? key;
+  const catLabel = (cat: string) => t("cat_" + cat);
+  const contact = document.getElementById("cm-contact")!.dataset.email || "";
+  const esc = (s = "") => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+  const dirUrl = (p: Place) => `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  const illoFor = (id: string) => document.querySelector(`#cm-illos [data-illo-for="${id}"]`)?.innerHTML || "";
+
+  const map = new maplibregl.Map({
+    container: "cuenca-map",
+    style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+    center: [-79.004, -2.9015],
+    zoom: 13.1,
+    minZoom: 11.5,
+    maxZoom: 18,
+    maxBounds: [[-79.075, -2.965], [-78.945, -2.845]],
+    attributionControl: { compact: true },
+  });
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+
+  // Recenter-on-Cuenca button (handy if the user pans away)
+  const HOME = { center: [-79.004, -2.9015] as [number, number], zoom: 13.1 };
+  class RecenterControl {
+    _c!: HTMLDivElement;
+    onAdd(m: maplibregl.Map) {
+      this._c = document.createElement("div");
+      this._c.className = "maplibregl-ctrl maplibregl-ctrl-group";
+      const b = document.createElement("button");
+      b.type = "button"; b.title = "Recenter on Cuenca"; b.setAttribute("aria-label", "Recenter on Cuenca");
+      b.style.color = "#f4efe2";
+      b.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin:auto"><circle cx="12" cy="12" r="3.2"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>';
+      b.onclick = () => m.flyTo({ ...HOME, duration: 0.7 });
+      this._c.appendChild(b); return this._c;
+    }
+    onRemove() { this._c.remove(); }
+  }
+  map.addControl(new RecenterControl(), "top-right");
+
+  // Recolor the real basemap: rivers light blue, major arteries gold. Reapplied
+  // on every style update so it lands once tiles finish loading.
+  function recolorBasemap() {
+    if (!map.isStyleLoaded()) return;
+    for (const layer of map.getStyle().layers) {
+      const id = layer.id, type = layer.type;
+      const set = (prop: string, val: any) => { try { map.setPaintProperty(id, prop, val); } catch (e) {} };
+      if (/^water/.test(id)) {
+        if (type === "line") { set("line-color", "#7fc7e8"); set("line-opacity", 0.7); }
+        if (type === "fill") set("fill-color", "#16374d");
+      }
+      if (/_(mot|trunk|pri)_fill/.test(id) && type === "line") { set("line-color", "#d6a53c"); set("line-opacity", 0.62); }
+      if (/_(mot|trunk|pri)_case/.test(id) && type === "line") { set("line-color", "#6f561d"); }
+      if (/^place_(city|town|capital)/.test(id)) { try { map.setLayoutProperty(id, "visibility", "none"); } catch (e) {} }
+    }
+  }
+  map.on("load", recolorBasemap);
+  map.on("styledata", recolorBasemap);
+
+  // ---- Markers ----
+  function markerEl(p: Place) {
+    const color = categoryMeta[p.category].color;
+    const prem = p.tier === "premium";
+    const el = document.createElement("div");
+    el.className = prem ? "cm-pin cm-pin--premium" : "cm-pin";
+    el.style.cssText = `width:${prem ? 32 : 22}px;height:${prem ? 32 : 22}px;cursor:pointer;`;
+    el.innerHTML = `<span class="cm-pin__dot" style="background:${color}">${prem ? '<span class="cm-pin__star">★</span>' : ""}</span>`;
+    el.addEventListener("click", (e) => { e.stopPropagation(); select(p.id); });
+    return el;
+  }
+  const markers = new Map<string, maplibregl.Marker>();
+  places.forEach((p) => {
+    markers.set(p.id, new maplibregl.Marker({ element: markerEl(p) }).setLngLat([p.lng, p.lat]).addTo(map));
+  });
+
+  // Custom CUENCA label, lifted north so the centro pins don't cover it.
+  const cityEl = document.createElement("div");
+  cityEl.className = "cm-citylabel";
+  cityEl.style.pointerEvents = "none";
+  cityEl.innerHTML = "<span>CUENCA</span>";
+  new maplibregl.Marker({ element: cityEl }).setLngLat([-79.004, -2.8925]).addTo(map);
+
+  // ---- Filters ----
+  let active = "all";
+  const chips = [...document.querySelectorAll<HTMLButtonElement>(".cm-chip")];
+  const BASE = "cm-chip flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] transition";
+  const dot = (f: string) => (f === "all" ? "" : `<span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background:${categoryMeta[f as Category].color}"></span>`);
+  function paintChips() {
+    chips.forEach((c) => {
+      const f = c.dataset.filter!, on = f === active;
+      c.className = on
+        ? `${BASE} font-semibold ${f === "all" ? "bg-gold text-[#3a2a08]" : "bg-paper text-indigo"}`
+        : `${BASE} border border-white/20 text-[#9fb0c6] hover:text-[#f4efe2]`;
+      c.innerHTML = `${dot(f)}${f === "all" ? t("filter_all") : catLabel(f)}`;
+    });
+  }
+  chips.forEach((chip) =>
+    chip.addEventListener("click", () => {
+      active = chip.dataset.filter!;
+      paintChips();
+      places.forEach((p) => {
+        const show = active === "all" || p.category === active;
+        markers.get(p.id)!.getElement().style.display = show ? "" : "none";
+      });
+    })
+  );
+
+  // ---- Legend ----
+  const legendEl = document.getElementById("cm-legend") as HTMLElement;
+  function renderLegend() {
+    const cats = Object.keys(categoryMeta).map((k) =>
+      `<span class="inline-flex items-center gap-1.5"><span class="h-2.5 w-2.5 rounded-full" style="background:${categoryMeta[k as Category].color}"></span>${catLabel(k).split(" ")[0]}</span>`
+    ).join("");
+    legendEl.innerHTML = cats +
+      `<span class="inline-flex items-center gap-1.5 font-semibold text-gold-soft"><span class="grid h-2.5 w-2.5 place-items-center rounded-full text-[7px] text-[#16243b]" style="background:#d6a53c">★</span>${t("legend_reviewed")}</span>`;
+  }
+
+  // ---- Detail panel ----
+  const panel = document.getElementById("cm-panel") as HTMLElement;
+  let lastId: string | null = null;
+  function ratingPill(p: Place) {
+    if (!p.rating) return "";
+    const fav = p.ratingCount && p.ratingCount > 1000 ? " · " + t("fav") : "";
+    return `<span class="mt-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[13px] font-semibold" style="border-color:rgba(214,165,60,.55);background:rgba(214,165,60,.14);color:#e7c982">★ ${p.rating}${fav}</span>`;
+  }
+  function select(id: string, fly = true) {
+    const p = places.find((x) => x.id === id);
+    if (!p) return;
+    lastId = id;
+    const c = categoryMeta[p.category];
+    const featured = p.tier === "premium";
+    const reviewBtn = p.reviewSlug
+      ? `<a href="/reviews/${p.reviewSlug}" class="mt-4 flex items-center justify-between rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-soft transition hover:bg-gold/20">★ ${t("panel_review")} <span>→</span></a>`
+      : `<a href="mailto:${esc(contact)}?subject=${encodeURIComponent("Featured listing for " + p.name)}" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;
+    panel.innerHTML = `
+      <button data-close class="absolute right-3.5 top-3 text-xl leading-none text-white/60 hover:text-white">×</button>
+      ${featured ? `<div class="mb-4 -mx-1 overflow-hidden rounded-xl">${illoFor(p.id)}</div>` : ""}
+      <span class="eyebrow text-[11px] font-bold uppercase" style="color:${featured ? "#e7c982" : c.color}">${catLabel(p.category)}</span>
+      <h3 class="mt-1.5 pr-6 font-display text-2xl font-semibold leading-tight">${esc(p.name)}</h3>
+      ${ratingPill(p)}
+      ${p.tagline ? `<p class="mt-3 font-display text-[17px] italic text-gold-soft">${esc(p.tagline)}</p>` : ""}
+      ${p.description ? `<p class="mt-2 text-sm leading-relaxed text-[#dfe6f0]">${esc(p.description)}</p>` : p.address ? `<p class="mt-3 text-sm text-[#9fb0c6]">${esc(p.address)}</p>` : ""}
+      ${p.hours ? `<div class="mt-4"><p class="eyebrow text-[10px] font-bold uppercase text-[#7e8ba0]">${t("panel_hours")}</p><p class="mt-1 text-sm">${esc(p.hours[0])}</p></div>` : ""}
+      <div class="mt-4 flex items-center gap-4">
+        <a href="${dirUrl(p)}" target="_blank" rel="noopener" class="rounded-lg bg-gold px-4 py-2.5 text-[13px] font-bold text-[#3a2a08] transition hover:bg-gold-soft">${t("panel_directions")}</a>
+        ${p.website ? `<a href="${esc(p.website)}" target="_blank" rel="noopener" class="text-[13px] font-semibold text-[#f4efe2] opacity-90 hover:opacity-100">${t("panel_website")}</a>` : ""}
+      </div>
+      ${reviewBtn}`;
+    panel.classList.remove("hidden");
+    panel.scrollTop = 0;
+    panel.querySelector("[data-close]")?.addEventListener("click", () => panel.classList.add("hidden"));
+    if (fly) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15.5), duration: 0.8 });
+  }
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") panel.classList.add("hidden"); });
+
+  window.addEventListener("langchange", () => {
+    paintChips();
+    renderLegend();
+    if (lastId && !panel.classList.contains("hidden")) select(lastId, false);
+  });
+  paintChips();
+  renderLegend();
+</script>

@@ -1,0 +1,125 @@
+---
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import AndesBackdrop from "../../components/AndesBackdrop.astro";
+import Illustration from "../../components/Illustration.astro";
+import { publishedReviews } from "../../data/reviews";
+import type { Review } from "../../data/reviews";
+
+export function getStaticPaths() {
+  return publishedReviews.map((review) => ({
+    params: { slug: review.slug },
+    props: { review },
+  }));
+}
+
+const { review } = Astro.props as { review: Review };
+const e = review.essentials!;
+const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.lng}`;
+---
+
+<Base title={`${review.name} — Review · Cuenca Expat Map`} description={review.dek}>
+  <Nav active="reviews" />
+
+  <article>
+    <!-- Dark header band -->
+    <section class="relative overflow-hidden bg-[#0e1a2e] text-[#f4efe2]">
+      <AndesBackdrop />
+      <div class="pointer-events-none absolute inset-0" style="background:radial-gradient(120% 120% at 50% 8%, rgba(14,26,46,.15), rgba(14,26,46,.86) 78%)"></div>
+
+      <div class="relative mx-auto max-w-[1240px] px-6 pt-7">
+        <a href="/reviews" class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#9fb0c6] transition hover:text-gold-soft" data-i18n="bc_back">← All reviews</a>
+      </div>
+
+      <header class="relative mx-auto max-w-[760px] px-6 pt-7 pb-16 text-center">
+        <p class="eyebrow text-[11px] font-bold uppercase text-gold">{review.eyebrow}</p>
+        <h1 class="mx-auto mt-4 max-w-[16ch] font-display text-[2.7rem] font-semibold leading-[1.04] tracking-tight sm:text-[3.4rem]" set:html={review.title}></h1>
+        <p class="mx-auto mt-5 max-w-[44ch] font-display text-[1.3rem] italic leading-snug text-[#b9c4d4]">{review.lede}</p>
+
+        <div class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13px] text-[#9fb0c6]">
+          <span class="inline-flex items-center gap-2">
+            <span class="grid h-7 w-7 place-items-center rounded-full bg-gold text-[12px] font-bold text-[#3a2a08]">{review.authorInitial}</span>
+            By <span class="font-semibold text-[#f4efe2]">{review.author}</span>
+          </span>
+          <span class="hidden h-1 w-1 rounded-full bg-white/25 sm:block"></span>
+          <span>{review.date}</span>
+          <span class="hidden h-1 w-1 rounded-full bg-white/25 sm:block"></span>
+          <span>{review.readTime}</span>
+          <span class="hidden h-1 w-1 rounded-full bg-white/25 sm:block"></span>
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-gold/50 bg-gold/10 px-3 py-1 font-semibold text-gold-soft">★ {review.rating} · {review.ratingLabel}</span>
+        </div>
+      </header>
+    </section>
+
+    <!-- Lead image -->
+    <figure class="mx-auto mt-10 max-w-[1080px] px-6">
+      <div class="overflow-hidden rounded-2xl border border-line shadow-[0_30px_70px_-36px_rgba(20,35,59,.5)]">
+        <div class="aspect-[16/8]"><Illustration name={review.leadIllo!} /></div>
+      </div>
+      <figcaption class="mt-3 text-center text-[12.5px] text-slate">{review.leadCaption}</figcaption>
+    </figure>
+
+    <!-- Body + sidebar -->
+    <div class="mx-auto mt-12 grid max-w-[1080px] grid-cols-1 gap-12 px-6 pb-4 lg:grid-cols-[minmax(0,680px)_1fr]">
+      <div class="prose-cuenca">
+        {review.body!.map((block) => {
+          if (block.type === "h2") return <h2>{block.text}</h2>;
+          if (block.type === "p") return <p class={block.dropcap ? "dropcap" : undefined} set:html={block.text}></p>;
+          if (block.type === "quote")
+            return (
+              <blockquote class="my-9 border-l-[3px] border-gold pl-6">
+                <p class="font-display text-[1.65rem] font-medium italic leading-snug text-indigo" set:html={block.text}></p>
+              </blockquote>
+            );
+          if (block.type === "figure")
+            return (
+              <figure class="my-9">
+                <div class="overflow-hidden rounded-xl border border-line"><div class="aspect-[3/2]"><Illustration name={block.illo} /></div></div>
+                <figcaption class="mt-2.5 font-sans text-[12.5px] text-slate">{block.caption}</figcaption>
+              </figure>
+            );
+          return null;
+        })}
+      </div>
+
+      <!-- Sidebar: the essentials -->
+      <aside class="lg:pt-2">
+        <div class="sticky top-24 rounded-2xl border border-line bg-marble/70 p-6">
+          <p class="eyebrow text-[10px] font-bold uppercase text-cinnabar">The essentials</p>
+          <h3 class="mt-1.5 font-display text-[1.5rem] font-semibold leading-tight text-indigo">{review.name}</h3>
+
+          <dl class="mt-5 space-y-4 text-sm">
+            <div><dt class="text-[11px] font-bold uppercase tracking-wide text-slate">Address</dt><dd class="mt-0.5 text-ink">{e.address}</dd></div>
+            <div><dt class="text-[11px] font-bold uppercase tracking-wide text-slate">Hours</dt><dd class="mt-0.5 text-ink">{e.hours}</dd></div>
+            <div><dt class="text-[11px] font-bold uppercase tracking-wide text-slate">Good for</dt><dd class="mt-0.5 text-ink">{e.goodFor}</dd></div>
+            <div><dt class="text-[11px] font-bold uppercase tracking-wide text-slate">Price</dt><dd class="mt-0.5 text-ink">{e.price}</dd></div>
+          </dl>
+
+          <a href={dirUrl} target="_blank" rel="noopener" class="mt-6 block rounded-lg bg-gold px-4 py-3 text-center text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft">Get directions</a>
+          <div class="mt-3 flex items-center justify-center gap-4 text-sm font-semibold text-cobalt">
+            {e.website && <a href={e.website} target="_blank" rel="noopener" class="hover:underline">Website</a>}
+            {e.website && e.phone && <span class="h-1 w-1 rounded-full bg-line"></span>}
+            {e.phone && <a href={`tel:${e.phone.replace(/\s/g, "")}`} class="hover:underline">Call</a>}
+          </div>
+
+          <div class="mt-6 overflow-hidden rounded-xl border border-line"><div class="aspect-[4/3]"><Illustration name={e.miniIllo} /></div></div>
+          <p class="mt-2 text-center text-[11.5px] text-slate">{e.miniCaption}</p>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  <!-- Keep reading -->
+  <section class="mt-8 border-t border-line bg-marble/60">
+    <div class="mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-6 px-6 py-12">
+      <div>
+        <p class="eyebrow text-[11px] font-bold uppercase text-cinnabar" data-i18n="keep_reading">Keep reading</p>
+        <h2 class="mt-2 font-display text-2xl font-semibold text-indigo" data-i18n="more_guide">More from the guide</h2>
+      </div>
+      <a href="/reviews" class="group inline-flex items-center gap-2 rounded-full border border-indigo px-6 py-3 text-sm font-semibold text-indigo transition hover:bg-indigo hover:text-paper"><span data-i18n="all_reviews">All reviews</span> <span class="transition group-hover:translate-x-0.5">→</span></a>
+    </div>
+  </section>
+
+  <Footer />
+</Base>

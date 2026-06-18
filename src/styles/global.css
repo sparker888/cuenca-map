@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   Cuenca Expat Map — design tokens (Tailwind v4)
+   Every color/font here becomes a utility: bg-paper, text-indigo, font-display…
+   ========================================================================== */
+@theme {
+  /* Surfaces & ink */
+  --color-paper: #faf6ee;
+  --color-marble: #f1ece0;
+  --color-ink: #1d1b17;
+  --color-line: #e3ddce;
+  --color-slate: #6b6f76;
+
+  /* Accents — drawn from the city & the Ecuadorian flag (used sparingly) */
+  --color-indigo: #14233b;
+  --color-indigo-700: #1c3050;
+  --color-cobalt: #1e5fa8;
+  --color-cobalt-deep: #173e6b;
+  --color-gold: #d6a53c;
+  --color-gold-soft: #e7c982;
+  --color-cinnabar: #c0533b;
+  --color-green: #4e7a52;
+  --color-claret: #8c3f5e;
+
+  /* Type */
+  --font-display: "Newsreader", Georgia, serif;
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+}
+
+/* =============================================================================
+   Small project utilities that aren't worth a string of Tailwind classes.
+   ========================================================================== */
+@layer components {
+  .eyebrow {
+    letter-spacing: 0.22em;
+  }
+
+  /* Long-form review body — editorial serif column */
+  .prose-cuenca {
+    font-family: var(--font-display);
+  }
+  .prose-cuenca p {
+    font-size: 1.225rem;
+    line-height: 1.72;
+    color: #2c2a25;
+    margin-top: 1.4rem;
+  }
+  .prose-cuenca h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.85rem;
+    line-height: 1.2;
+    color: var(--color-indigo);
+    margin-top: 2.8rem;
+    letter-spacing: -0.01em;
+  }
+  .prose-cuenca a {
+    color: var(--color-cobalt);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .dropcap::first-letter {
+    font-family: var(--font-display);
+    float: left;
+    font-size: 4.6rem;
+    line-height: 0.78;
+    font-weight: 600;
+    padding: 0.32rem 0.7rem 0 0;
+    color: var(--color-cinnabar);
+  }
+}
+
+/* =============================================================================
+   Leaflet chrome — themed to match the dark map. divIcon markup can't carry
+   Tailwind classes, so the pin styles live here.
+   ========================================================================== */
+.leaflet-container {
+  background: #0c1626;
+  font-family: var(--font-sans);
+}
+.leaflet-control-zoom a {
+  background: #1b2942 !important;
+  color: #f4efe2 !important;
+  border-color: rgba(244, 239, 226, 0.12) !important;
+}
+.leaflet-control-attribution {
+  background: rgba(15, 26, 46, 0.7) !important;
+  color: #9fb0c6 !important;
+}
+.leaflet-control-attribution a {
+  color: #9fb0c6 !important;
+}
+.cm-pin__dot {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 2.5px solid #f4efe2;
+  border-radius: 50%;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.6);
+  transition: transform 0.12s ease;
+}
+.cm-pin--premium .cm-pin__dot {
+  border-color: #d6a53c;
+  box-shadow: 0 0 0 3px rgba(214, 165, 60, 0.4), 0 3px 9px rgba(0, 0, 0, 0.6);
+}
+.cm-pin__star {
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+.cm-pin:hover .cm-pin__dot {
+  transform: scale(1.18);
+}
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* MapLibre GL controls themed for the dark map */
+.maplibregl-ctrl-group {
+  background: #1b2942 !important;
+  border: 1px solid rgba(244, 239, 226, 0.12) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top-color: rgba(244, 239, 226, 0.12) !important;
+}
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.6);
+}
+.maplibregl-ctrl-attrib {
+  background: rgba(12, 22, 38, 0.72) !important;
+}
+.maplibregl-ctrl-attrib a {
+  color: #9fb0c6 !important;
+}
+#cuenca-map canvas {
+  outline: none;
+}
+
+/* Custom CUENCA place label, lifted clear of the pins */
+.cm-citylabel span {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  color: rgba(244, 239, 226, 0.46);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+}

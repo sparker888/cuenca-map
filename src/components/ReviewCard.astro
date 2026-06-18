@@ -1,0 +1,45 @@
+---
+// A single review card, used on the homepage showcase and the reviews index.
+// Unpublished reviews render as a non-clickable "coming soon" card.
+// Text carries data-en/data-es (dek) and data-i18n (labels) so the language
+// toggle swaps it live — see src/i18n/client.ts.
+import Illustration from "./Illustration.astro";
+import { CAT_KEY_BY_LABEL } from "../i18n/ui";
+import type { Review } from "../data/reviews";
+
+interface Props {
+  review: Review;
+  size?: "default" | "sm";
+}
+const { review, size = "default" } = Astro.props;
+const titleSize = size === "sm" ? "text-[1.55rem]" : "text-[1.6rem]";
+const catKey = CAT_KEY_BY_LABEL[review.category] ?? "";
+---
+
+<a
+  href={review.published ? `/reviews/${review.slug}` : undefined}
+  class:list={[
+    "flex flex-col overflow-hidden rounded-2xl border border-line bg-paper",
+    review.published
+      ? "group transition hover:-translate-y-1 hover:shadow-[0_24px_50px_-28px_rgba(20,35,59,.45)]"
+      : "opacity-80",
+  ]}
+  aria-disabled={!review.published}
+>
+  <div class="relative aspect-[4/3] overflow-hidden">
+    <Illustration name={review.cardIllo} />
+    <span class="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-indigo/85 px-2.5 py-1 text-[11px] font-bold text-gold-soft backdrop-blur">★ {review.rating}</span>
+    {!review.published && (
+      <span class="absolute left-3 top-3 rounded-full bg-paper/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate" data-i18n="badge_soon">Coming soon</span>
+    )}
+  </div>
+  <div class="flex flex-1 flex-col p-5">
+    <span class="eyebrow text-[10px] font-bold uppercase text-cinnabar" data-i18n={catKey}>{review.category}</span>
+    <h3 class={`mt-1.5 font-display ${titleSize} font-semibold leading-tight text-indigo`}>{review.name}</h3>
+    <p class="mt-2 flex-1 text-[14.5px] leading-relaxed text-slate" data-en={review.dek} data-es={review.dekEs ?? review.dek}>{review.dek}</p>
+    <span class:list={["mt-4 inline-flex items-center gap-2 text-sm font-semibold", review.published ? "text-cobalt" : "text-slate"]}>
+      <span data-i18n={review.published ? "card_read" : "card_soon"}>{review.published ? "Read review" : "Review coming soon"}</span>
+      {review.published && <span class="transition group-hover:translate-x-0.5">→</span>}
+    </span>
+  </div>
+</a>

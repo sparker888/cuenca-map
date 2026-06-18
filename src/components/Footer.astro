@@ -1,0 +1,46 @@
+---
+// Site footer. `variant="full"` is the homepage three-column footer;
+// "slim" is the compact bar used on article/index pages.
+interface Props {
+  variant?: "full" | "slim";
+  note?: string;
+}
+const { variant = "slim", note = "© 2026 Cuenca Expat Map · Reviews are independent and unsponsored." } = Astro.props;
+---
+
+{variant === "full" ? (
+  <footer id="about" class="bg-indigo text-[#cdd6e3]">
+    <div class="mx-auto grid max-w-[1240px] gap-10 px-6 py-14 sm:grid-cols-[1.4fr_1fr_1fr]">
+      <div>
+        <p class="font-display text-2xl font-semibold text-[#f4efe2]">Cuenca</p>
+        <p class="eyebrow mt-1 text-[10px] font-bold uppercase text-gold">Expat Map</p>
+        <p class="mt-4 max-w-[40ch] text-sm leading-relaxed text-[#9fb0c6]" data-i18n="foot_tagline">A small, independent guide to living and eating well in Cuenca, Ecuador. Made by people who actually live here.</p>
+      </div>
+      <div class="text-sm">
+        <p class="eyebrow mb-3 text-[10px] font-bold uppercase text-[#7e8ba0]" data-i18n="foot_explore">Explore</p>
+        <ul class="space-y-2">
+          <li><a href="/" class="hover:text-[#f4efe2]" data-i18n="foot_map">The map</a></li>
+          <li><a href="/reviews" class="hover:text-[#f4efe2]" data-i18n="nav_reviews">Reviews</a></li>
+          <li><a href="/about" class="hover:text-[#f4efe2]" data-i18n="nav_about">About</a></li>
+        </ul>
+      </div>
+      <div class="text-sm">
+        <p class="eyebrow mb-3 text-[10px] font-bold uppercase text-[#7e8ba0]" data-i18n="foot_own">Own a business?</p>
+        <p class="leading-relaxed text-[#9fb0c6]"><span data-i18n="foot_own_body">Get a featured listing and a full review.</span> <a href="mailto:hello@gravitaldigital.com" class="text-gold-soft underline-offset-2 hover:underline" data-i18n="foot_own_link">Get in touch →</a></p>
+      </div>
+    </div>
+    <div class="border-t border-white/10">
+      <div class="mx-auto max-w-[1240px] px-6 py-5 text-[12px] text-[#7e8ba0]" data-i18n="foot_legal">© 2026 Cuenca Expat Map · Map data © OpenStreetMap, CARTO</div>
+    </div>
+  </footer>
+) : (
+  <footer class="bg-indigo text-[#cdd6e3]">
+    <div class="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-4 px-6 py-8">
+      <div>
+        <span class="font-display text-xl font-semibold text-[#f4efe2]">Cuenca</span>
+        <span class="eyebrow ml-2 text-[10px] font-bold uppercase text-gold">Expat Map</span>
+      </div>
+      <p class="text-[12px] text-[#7e8ba0]">{note}</p>
+    </div>
+  </footer>
+)}

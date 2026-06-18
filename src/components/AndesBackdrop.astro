@@ -1,0 +1,20 @@
+---
+// Subtle animated Andes topography behind a dark header. Place inside a
+// `relative overflow-hidden` dark section; pass positioning via `class`.
+interface Props { class?: string; }
+const { class: className = "absolute inset-0 h-full w-full" } = Astro.props;
+---
+
+<canvas data-andes class:list={["pointer-events-none", className]}></canvas>
+
+<script>
+  import { initAndes } from "../lib/andes";
+  const run = () =>
+    document.querySelectorAll<HTMLCanvasElement>("canvas[data-andes]").forEach((c) => {
+      if ((c as any).__andes) return;
+      (c as any).__andes = true;
+      initAndes(c, { color: 0x3f72b5, bg: 0x0e1a2e });
+    });
+  if (document.readyState !== "loading") run();
+  else window.addEventListener("DOMContentLoaded", run);
+</script>
