@@ -147,15 +147,15 @@ export const reviews: Review[] = [
     dekEs: "Tres pisos de fruta, hornado y almuerzos de diez dólares. Una guía para comer por el mejor mercado de Cuenca sin perderte.",
   },
   {
-    slug: "review-tutto-matto",
-    placeId: "tutto-matto",
+    slug: "review-little-italy",
+    placeId: "little-italy",
     published: false,
-    name: "Tutto Matto Pizzería",
+    name: "Little Italy",
     category: "Food & cafés",
     rating: 4.5,
     cardIllo: "terrace",
-    dek: "A tiny wood-fired room on Solano turning out the most convincing Neapolitan pizza in the southern Sierra. Go early.",
-    dekEs: "Un pequeño local de horno de leña en Solano con la pizza napolitana más convincente de la Sierra sur. Ve temprano.",
+    dek: "A cozy Italian spot in El Ejido for a proper sit-down dinner — wood-fired pizza, red sauce done right, and a warm room that fills up after dark. Placeholder copy.",
+    dekEs: "Un acogedor lugar italiano en El Ejido para una cena de verdad: pizza al horno de leña, buena salsa roja y un salón cálido que se llena al caer la noche. Texto de ejemplo.",
   },
 ];
 

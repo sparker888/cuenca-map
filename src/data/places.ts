@@ -106,6 +106,6 @@ export const places: Place[] = [
     // featured listing, review not yet written → no reviewSlug
   },
   { id: "sunrise-cafe", name: "Sunrise Café", category: "food", tier: "standard", lat: -2.9007104, lng: -79.0058901, address: "Calle Larga 938, Cuenca", rating: 4.6, ratingCount: 855 },
-  { id: "tutto-matto", name: "Tutto Matto Pizzería", category: "food", tier: "standard", lat: -2.9100462, lng: -79.0086246, address: "Av. Fray Vicente Solano 8-51, Cuenca", rating: 4.5, ratingCount: 124 },
+  { id: "little-italy", name: "Little Italy", category: "food", tier: "standard", lat: -2.9020, lng: -79.0139, address: "Remigio Tamariz y Alfonso Borrero, Cuenca", rating: 4.5, ratingCount: 209 },
   { id: "wunderbar", name: "Wunderbar Café", category: "food", tier: "standard", lat: -2.9025736, lng: -79.0030869, address: "Hermano Miguel (near the escalinata), Cuenca", rating: 4.4, ratingCount: 426 },
 ];
