@@ -1,5 +1,14 @@
 # 01 — Owner self-serve portal
-Status: backlog · Priority: P0 · Depends on: 02 (auth)
+Status: done (2026-06-19) · Priority: P0 · Depends on: 02 (auth)
+
+Built: client-rendered `/owner` page using the PocketBase JS SDK (`src/lib/pb-client.ts`).
+Email/password login (Google + Turnstile land in task 02). Tier-gated editor (free = read-only;
+enhanced = tagline/description/hours/phone/whatsapp/website/photos/specials; premium = + menu PDF
++ larger gallery). Specials CRUD, photo upload (media), menu PDF, read-only subscription.
+Server-side enforcement: collection rules scope owners to their own records; `owner-guard.pb.js`
+blocks owners from changing tier/status/category/owner/published/etc. Schema adds:
+businesses.whatsapp, businesses.menuPdf; events_specials list rule lets owners see their own.
+Verified (API + browser): owner isolation, field guard (403), uploads, save, specials.
 
 ## Goal
 A browser page where a logged-in business owner manages their own listing — the self-service that

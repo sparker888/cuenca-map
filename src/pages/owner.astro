@@ -1,0 +1,344 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+// Fully client-rendered, authenticated page. No build-time data — the browser
+// logs into PocketBase and reads/writes its own records (collection rules are the
+// security boundary). See src/lib/pb-client.ts.
+const inputCls =
+  "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
+const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
+---
+
+<Base title="Owner portal — Cuenca Maps" description="Manage your Cuenca Maps listing.">
+  <Nav />
+
+  <section class="mx-auto max-w-[920px] px-6 py-14 sm:py-20">
+    <p class="eyebrow text-[11px] font-bold uppercase text-cinnabar">For business owners</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-indigo sm:text-[2.4rem]">Owner portal</h1>
+
+    <!-- LOGIN -->
+    <div id="owner-login" class="mt-8 hidden max-w-[420px] rounded-2xl border border-line bg-paper p-7 shadow-[0_24px_50px_-30px_rgba(20,35,59,.35)]">
+      <h2 class="font-display text-xl font-semibold text-indigo">Sign in</h2>
+      <p class="mt-1 text-[14px] text-slate">Manage your listing, specials, and photos.</p>
+      <form id="login-form" class="mt-5 grid gap-4">
+        <label class="block">
+          <span class={labelCls}>Email</span>
+          <input type="email" name="email" required class={inputCls} autocomplete="email" />
+        </label>
+        <label class="block">
+          <span class={labelCls}>Password</span>
+          <input type="password" name="password" required class={inputCls} autocomplete="current-password" />
+        </label>
+        <!-- Turnstile widget mounts here (task 02) -->
+        <div id="login-turnstile"></div>
+        <button type="submit" class="rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft">Sign in</button>
+      </form>
+      <div class="mt-4 flex items-center gap-3 text-[12px] text-slate"><span class="h-px flex-1 bg-line"></span>or<span class="h-px flex-1 bg-line"></span></div>
+      <button id="google-signin" class="mt-4 flex w-full items-center justify-center gap-2.5 rounded-lg border border-line bg-paper px-5 py-3 text-sm font-semibold text-ink transition hover:bg-marble">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+        Sign in with Google
+      </button>
+      <p id="login-error" class="mt-4 hidden text-sm font-semibold text-cinnabar"></p>
+    </div>
+
+    <!-- PORTAL -->
+    <div id="owner-portal" class="mt-8 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="text-[14px] text-slate">Signed in as <span id="owner-email" class="font-semibold text-ink"></span></p>
+        <div class="flex items-center gap-3">
+          <select id="biz-switcher" class="hidden rounded-lg border border-line bg-paper px-3 py-1.5 text-sm"></select>
+          <button id="logout" class="text-sm font-semibold text-cobalt hover:underline">Sign out</button>
+        </div>
+      </div>
+      <div id="portal-body" class="mt-6"></div>
+    </div>
+
+    <div id="owner-loading" class="mt-8 text-sm text-slate">Loading…</div>
+  </section>
+
+  <Footer />
+</Base>
+
+<script>
+  import { pb } from "../lib/pb-client";
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const esc = (s = "") => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+  const INPUT = "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
+  const LABEL = "text-[12px] font-bold uppercase tracking-wide text-slate";
+  const BTN = "rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft disabled:opacity-50";
+
+  const PHOTO_LIMITS: Record<string, number> = { free: 0, enhanced: 6, premium: 20 };
+
+  function show(id: string, on = true) { $(id).classList.toggle("hidden", !on); }
+  function uid() { return (pb.authStore.record as any)?.id || ""; }
+
+  // ---- boot ----
+  async function boot() {
+    show("owner-loading", true); show("owner-login", false); show("owner-portal", false);
+    if (pb.authStore.isValid) {
+      try { await loadPortal(); return; }
+      catch (e) { pb.authStore.clear(); }
+    }
+    show("owner-loading", false);
+    show("owner-login", true);
+  }
+
+  // ---- login ----
+  ($("login-form") as HTMLFormElement).addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target as HTMLFormElement);
+    const err = $("login-error"); err.classList.add("hidden");
+    const token = (window as any).__turnstileToken?.("login");
+    try {
+      await pb.collection("users").authWithPassword(
+        String(fd.get("email")), String(fd.get("password")),
+        token ? { headers: { "X-Turnstile-Token": token } } : {}
+      );
+      await loadPortal();
+    } catch (ex: any) {
+      err.textContent = ex?.message || "Sign in failed.";
+      err.classList.remove("hidden");
+    }
+  });
+
+  $("google-signin").addEventListener("click", async () => {
+    const err = $("login-error"); err.classList.add("hidden");
+    try {
+      await pb.collection("users").authWithOAuth2({ provider: "google" });
+      await loadPortal();
+    } catch (ex: any) {
+      err.textContent = ex?.message || "Google sign-in is not available yet.";
+      err.classList.remove("hidden");
+    }
+  });
+
+  $("logout").addEventListener("click", () => { pb.authStore.clear(); location.reload(); });
+
+  // ---- portal ----
+  let businesses: any[] = [];
+  async function loadPortal() {
+    show("owner-loading", true); show("owner-login", false);
+    businesses = await pb.collection("businesses").getFullList({ filter: `owner = "${uid()}"`, sort: "name" });
+    ($("owner-email")).textContent = (pb.authStore.record as any)?.email || "";
+    show("owner-loading", false); show("owner-portal", true);
+
+    if (!businesses.length) {
+      $("portal-body").innerHTML = `<div class="rounded-2xl border border-line bg-marble/50 p-8 text-center">
+        <p class="font-display text-xl font-semibold text-indigo">No listing assigned yet</p>
+        <p class="mt-2 text-sm text-slate">Your account isn't linked to a business. Once we assign your listing you'll be able to manage it here.</p></div>`;
+      return;
+    }
+
+    const sw = $("biz-switcher") as HTMLSelectElement;
+    if (businesses.length > 1) {
+      sw.innerHTML = businesses.map((b, i) => `<option value="${i}">${esc(b.name)}</option>`).join("");
+      sw.classList.remove("hidden");
+      sw.onchange = () => renderBusiness(businesses[+sw.value]);
+    } else sw.classList.add("hidden");
+
+    renderBusiness(businesses[0]);
+  }
+
+  async function renderBusiness(b: any) {
+    const tier = b.tier as string;
+    const canEdit = tier === "enhanced" || tier === "premium";
+    const isPremium = tier === "premium";
+    const tierBadge = `<span class="rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${canEdit ? "bg-gold/20 text-[#7a5a12]" : "bg-marble text-slate"}">${esc(tier)}</span>`;
+
+    let html = `<div class="rounded-2xl border border-line bg-paper p-7">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="font-display text-2xl font-semibold text-indigo">${esc(b.name)}</h2>${tierBadge}
+      </div>`;
+
+    if (!canEdit) {
+      html += `<p class="mt-4 rounded-lg border border-gold/40 bg-gold/5 p-4 text-sm text-ink">
+        Your listing is on the <strong>Free</strong> tier — a pin on the map. Upgrade to <strong>Enhanced</strong>
+        to edit your tagline, hours, photos and post specials, or <strong>Premium</strong> for a full review and menu.</p></div>`;
+      $("portal-body").innerHTML = html + subscriptionCard(b);
+      return;
+    }
+
+    // Editable config form
+    const hoursText = Array.isArray(b.hours) ? b.hours.join("\n") : "";
+    html += `<form id="cfg-form" class="mt-6 grid gap-4">
+        <label class="block"><span class="${LABEL}">Tagline</span><input name="tagline" value="${esc(b.tagline)}" class="${INPUT}" maxlength="80" /></label>
+        <label class="block"><span class="${LABEL}">Description</span><textarea name="description" rows="4" class="${INPUT} resize-none">${esc(b.description)}</textarea></label>
+        <label class="block"><span class="${LABEL}">Hours (one line per row)</span><textarea name="hours" rows="3" class="${INPUT} resize-none">${esc(hoursText)}</textarea></label>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="block"><span class="${LABEL}">Phone</span><input name="phone" value="${esc(b.phone)}" class="${INPUT}" /></label>
+          <label class="block"><span class="${LABEL}">WhatsApp</span><input name="whatsapp" value="${esc(b.whatsapp)}" class="${INPUT}" placeholder="+593…" /></label>
+        </div>
+        <label class="block"><span class="${LABEL}">Website</span><input name="website" type="url" value="${esc(b.website)}" class="${INPUT}" placeholder="https://…" /></label>
+        <div class="flex items-center gap-3">
+          <button type="submit" class="${BTN}">Save changes</button>
+          <span id="cfg-status" class="text-sm font-semibold text-green"></span>
+        </div>
+      </form></div>`;
+
+    html += photosCard(b, isPremium);
+    if (isPremium) html += menuCard(b);
+    html += specialsCard(b);
+    html += subscriptionCard(b);
+
+    $("portal-body").innerHTML = html;
+    bindConfig(b);
+    bindPhotos(b);
+    if (isPremium) bindMenu(b);
+    bindSpecials(b);
+  }
+
+  function subscriptionCard(b: any) {
+    return `<div class="mt-6 rounded-2xl border border-line bg-marble/40 p-6">
+      <p class="${LABEL} text-cinnabar">Subscription</p>
+      <div id="sub-body" class="mt-2 text-sm text-slate">Loading…</div></div>`;
+  }
+  async function loadSubscription(b: any) {
+    try {
+      const subs = await pb.collection("subscriptions").getFullList({ filter: `business = "${b.id}"`, sort: "-created" });
+      const el = document.getElementById("sub-body"); if (!el) return;
+      if (!subs.length) { el.innerHTML = `Tier <strong class="text-ink">${esc(b.tier)}</strong> · no active subscription record. <span class="text-slate">(Read-only — managed by Cuenca Maps.)</span>`; return; }
+      const s = subs[0];
+      const until = s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString() : "—";
+      el.innerHTML = `Tier <strong class="text-ink">${esc(s.tier || b.tier)}</strong> · status <strong class="text-ink">${esc(s.status || "—")}</strong> · paid through <strong class="text-ink">${esc(until)}</strong>. <span class="text-slate">(Read-only.)</span>`;
+    } catch { const el = document.getElementById("sub-body"); if (el) el.textContent = "Subscription unavailable."; }
+  }
+
+  function bindConfig(b: any) {
+    loadSubscription(b);
+    const form = document.getElementById("cfg-form") as HTMLFormElement;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const status = document.getElementById("cfg-status")!;
+      const hours = String(fd.get("hours") || "").split("\n").map((s) => s.trim()).filter(Boolean);
+      try {
+        await pb.collection("businesses").update(b.id, {
+          tagline: fd.get("tagline"), description: fd.get("description"), hours,
+          phone: fd.get("phone"), whatsapp: fd.get("whatsapp"), website: fd.get("website"),
+        });
+        status.textContent = "Saved ✓"; setTimeout(() => (status.textContent = ""), 2500);
+      } catch (ex: any) { status.className = "text-sm font-semibold text-cinnabar"; status.textContent = ex?.message || "Save failed"; }
+    });
+  }
+
+  // ---- photos (media collection) ----
+  function photosCard(b: any, isPremium: boolean) {
+    const limit = PHOTO_LIMITS[b.tier] ?? 0;
+    return `<div class="mt-6 rounded-2xl border border-line bg-paper p-7">
+      <div class="flex items-center justify-between"><h3 class="font-display text-lg font-semibold text-indigo">${isPremium ? "Photo gallery" : "Photos"}</h3>
+      <span class="text-[12px] text-slate">up to ${limit}</span></div>
+      <div id="photos-grid" class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">Loading…</div>
+      <label class="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-cobalt hover:bg-marble">
+        <input id="photo-input" type="file" accept="image/*" class="hidden" /> + Add photo</label>
+      <span id="photo-status" class="ml-3 text-sm text-slate"></span></div>`;
+  }
+  async function bindPhotos(b: any) {
+    const grid = document.getElementById("photos-grid")!;
+    const limit = PHOTO_LIMITS[b.tier] ?? 0;
+    async function refresh() {
+      const media = await pb.collection("media").getFullList({ filter: `business = "${b.id}"`, sort: "order,created" });
+      grid.innerHTML = media.length ? media.map((m) => {
+        const url = pb.files.getURL(m, m.image, { thumb: "300x300" });
+        return `<div class="group relative overflow-hidden rounded-lg border border-line"><img src="${url}" alt="${esc(m.alt)}" class="aspect-square w-full object-cover" />
+          <button data-del="${m.id}" class="absolute right-1.5 top-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-bold text-white opacity-0 transition group-hover:opacity-100">✕</button></div>`;
+      }).join("") : `<p class="col-span-full text-sm text-slate">No photos yet.</p>`;
+      grid.querySelectorAll<HTMLButtonElement>("[data-del]").forEach((btn) =>
+        btn.addEventListener("click", async () => { if (confirm("Delete this photo?")) { await pb.collection("media").delete(btn.dataset.del!); refresh(); } }));
+      (grid as any).__count = media.length;
+    }
+    await refresh();
+    const input = document.getElementById("photo-input") as HTMLInputElement;
+    const status = document.getElementById("photo-status")!;
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0]; if (!file) return;
+      if (((grid as any).__count ?? 0) >= limit) { status.textContent = `Limit reached (${limit}).`; return; }
+      status.textContent = "Uploading…";
+      try {
+        const fd = new FormData(); fd.append("business", b.id); fd.append("image", file);
+        await pb.collection("media").create(fd);
+        status.textContent = ""; input.value = ""; refresh();
+      } catch (ex: any) { status.textContent = ex?.message || "Upload failed"; }
+    });
+  }
+
+  // ---- menu PDF (premium, businesses.menuPdf) ----
+  function menuCard(b: any) {
+    const cur = b.menuPdf ? `<a href="${pb.files.getURL(b, b.menuPdf)}" target="_blank" rel="noopener" class="text-sm font-semibold text-cobalt hover:underline">View current menu (PDF)</a>` : `<span class="text-sm text-slate">No menu uploaded.</span>`;
+    return `<div class="mt-6 rounded-2xl border border-line bg-paper p-7">
+      <h3 class="font-display text-lg font-semibold text-indigo">Menu (PDF)</h3>
+      <div class="mt-3" id="menu-current">${cur}</div>
+      <label class="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-line px-4 py-2.5 text-sm font-semibold text-cobalt hover:bg-marble">
+        <input id="menu-input" type="file" accept="application/pdf" class="hidden" /> Upload menu PDF</label>
+      <span id="menu-status" class="ml-3 text-sm text-slate"></span></div>`;
+  }
+  function bindMenu(b: any) {
+    const input = document.getElementById("menu-input") as HTMLInputElement;
+    const status = document.getElementById("menu-status")!;
+    input.addEventListener("change", async () => {
+      const file = input.files?.[0]; if (!file) return;
+      status.textContent = "Uploading…";
+      try {
+        const fd = new FormData(); fd.append("menuPdf", file);
+        const updated = await pb.collection("businesses").update(b.id, fd);
+        b.menuPdf = updated.menuPdf;
+        document.getElementById("menu-current")!.innerHTML = `<a href="${pb.files.getURL(updated, updated.menuPdf)}" target="_blank" rel="noopener" class="text-sm font-semibold text-cobalt hover:underline">View current menu (PDF)</a>`;
+        status.textContent = "Saved ✓"; input.value = "";
+      } catch (ex: any) { status.textContent = ex?.message || "Upload failed"; }
+    });
+  }
+
+  // ---- specials / events ----
+  function specialsCard(b: any) {
+    return `<div class="mt-6 rounded-2xl border border-line bg-paper p-7">
+      <div class="flex items-center justify-between"><h3 class="font-display text-lg font-semibold text-indigo">Specials & events</h3>
+        <button id="special-add" class="rounded-lg border border-line px-3.5 py-1.5 text-sm font-semibold text-cobalt hover:bg-marble">+ New</button></div>
+      <p class="mt-1 text-[12px] text-slate">Active specials appear live on your map listing instantly — no rebuild.</p>
+      <div id="specials-list" class="mt-4 grid gap-3">Loading…</div></div>`;
+  }
+  async function bindSpecials(b: any) {
+    const list = document.getElementById("specials-list")!;
+    async function refresh() {
+      const items = await pb.collection("events_specials").getFullList({ filter: `business = "${b.id}"`, sort: "-created" });
+      list.innerHTML = items.length ? items.map((s) => `
+        <div class="rounded-lg border border-line p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div><p class="font-semibold text-ink">${esc(s.title)} ${s.active ? '<span class="ml-1 rounded-full bg-green/15 px-2 py-0.5 text-[10px] font-bold uppercase text-green">live</span>' : '<span class="ml-1 rounded-full bg-marble px-2 py-0.5 text-[10px] font-bold uppercase text-slate">off</span>'}</p>
+              ${s.description ? `<p class="mt-1 text-sm text-slate">${esc(s.description)}</p>` : ""}</div>
+            <div class="flex shrink-0 gap-2">
+              <button data-toggle="${s.id}" data-active="${s.active}" class="text-[13px] font-semibold text-cobalt hover:underline">${s.active ? "Deactivate" : "Activate"}</button>
+              <button data-edit="${s.id}" class="text-[13px] font-semibold text-cobalt hover:underline">Edit</button>
+              <button data-del="${s.id}" class="text-[13px] font-semibold text-cinnabar hover:underline">Delete</button>
+            </div>
+          </div>
+        </div>`).join("") : `<p class="text-sm text-slate">No specials yet.</p>`;
+
+      list.querySelectorAll<HTMLButtonElement>("[data-toggle]").forEach((btn) => btn.addEventListener("click", async () => {
+        await pb.collection("events_specials").update(btn.dataset.toggle!, { active: btn.dataset.active !== "true" }); refresh();
+      }));
+      list.querySelectorAll<HTMLButtonElement>("[data-del]").forEach((btn) => btn.addEventListener("click", async () => {
+        if (confirm("Delete this special?")) { await pb.collection("events_specials").delete(btn.dataset.del!); refresh(); }
+      }));
+      list.querySelectorAll<HTMLButtonElement>("[data-edit]").forEach((btn) => btn.addEventListener("click", () => {
+        const s = items.find((x) => x.id === btn.dataset.edit); openSpecialForm(b, refresh, s);
+      }));
+    }
+    await refresh();
+    document.getElementById("special-add")!.addEventListener("click", () => openSpecialForm(b, refresh));
+  }
+
+  function openSpecialForm(b: any, refresh: () => void, s?: any) {
+    const title = prompt("Special title:", s?.title || ""); if (title === null) return;
+    const description = prompt("Description (optional):", s?.description || "") ?? "";
+    (async () => {
+      const data: any = { business: b.id, title, description, active: s ? s.active : true };
+      if (s) await pb.collection("events_specials").update(s.id, data);
+      else await pb.collection("events_specials").create(data);
+      refresh();
+    })();
+  }
+
+  boot();
+</script>

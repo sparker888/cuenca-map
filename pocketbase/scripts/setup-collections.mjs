@@ -151,10 +151,13 @@ async function main() {
       sel("illo", ILLOS),
       json("hours", { maxSize: 100000 }),
       txt("phone"),
+      txt("whatsapp"), // click-to-chat number (task 03); owner-editable
       url("website"),
       txt("reviewSlug"),
       bool("published"),
       rel("owner", "_pb_users_auth_", {}),
+      // Premium-only menu PDF, owner-uploaded via the portal.
+      { name: "menuPdf", type: "file", maxSelect: 1, maxSize: 10485760, mimeTypes: ["application/pdf"] },
       created(), updated(),
     ],
     indexes: ["CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"],
@@ -217,12 +220,13 @@ async function main() {
     ],
   });
 
-  // 6) events_specials — public sees active; owner/admin write. NOTE: must NOT trigger rebuilds.
+  // 6) events_specials — public sees active; owner/admin also see their own
+  // (incl. inactive, for the portal editor). NOTE: must NOT trigger rebuilds.
   await upsert({
     name: "events_specials",
     type: "base",
-    listRule: "active = true",
-    viewRule: "active = true",
+    listRule: 'active = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
+    viewRule: 'active = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
     createRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
     updateRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
     deleteRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',

@@ -136,7 +136,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
     "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-19 20:25:48.437Z",
+    "updated": "2026-06-19 20:33:35.834Z",
     "system": false
   },
   {
@@ -246,7 +246,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
     "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-19 20:25:48.649Z",
+    "updated": "2026-06-19 20:33:36.078Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -542,6 +542,21 @@ migrate((app) => {
         "type": "text"
       },
       {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "text4222712125",
+        "max": 0,
+        "min": 0,
+        "name": "whatsapp",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
         "exceptDomains": null,
         "help": "",
         "hidden": false,
@@ -593,6 +608,23 @@ migrate((app) => {
         "type": "relation"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "file2620109134",
+        "maxSelect": 1,
+        "maxSize": 10485760,
+        "mimeTypes": [
+          "application/pdf"
+        ],
+        "name": "menuPdf",
+        "presentable": false,
+        "protected": false,
+        "required": false,
+        "system": false,
+        "thumbs": null,
+        "type": "file"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created",
@@ -617,7 +649,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
     "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-19 20:25:48.855Z",
+    "updated": "2026-06-19 20:33:36.295Z",
     "system": false
   },
   {
@@ -985,7 +1017,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
     "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-19 20:25:49.064Z",
+    "updated": "2026-06-19 20:33:36.525Z",
     "system": false
   },
   {
@@ -1098,13 +1130,13 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-19 20:25:49.278Z",
+    "updated": "2026-06-19 20:33:36.734Z",
     "system": false
   },
   {
     "id": "pbc_2973327975",
-    "listRule": "active = true",
-    "viewRule": "active = true",
+    "listRule": "active = true || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
+    "viewRule": "active = true || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "createRule": "business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "updateRule": "business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "deleteRule": "business.owner = @request.auth.id || @request.auth.role = \"admin\"",
@@ -1227,7 +1259,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-19 20:25:49.495Z",
+    "updated": "2026-06-19 20:33:36.941Z",
     "system": false
   },
   {
@@ -1363,7 +1395,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-19 20:25:49.703Z",
+    "updated": "2026-06-19 20:33:37.183Z",
     "system": false
   },
   {
@@ -1517,7 +1549,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-19 20:25:49.949Z",
+    "updated": "2026-06-19 20:33:37.391Z",
     "system": false
   }
 ];
