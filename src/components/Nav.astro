@@ -3,7 +3,7 @@
 // Desktop: links sit inline. Mobile: links collapse behind a hamburger so the
 // logo + language toggle never get clipped on narrow viewports.
 interface Props {
-  active?: "map" | "reviews" | "about";
+  active?: "map" | "reviews" | "about" | "list";
 }
 const { active } = Astro.props;
 const link = "rounded-full px-3.5 py-2 transition";
@@ -26,6 +26,7 @@ const moff = "text-slate hover:bg-marble hover:text-ink";
         <a href="/" class={`${link} ${active === "map" ? on : off}`} data-i18n="nav_map">Map</a>
         <a href="/reviews" class={`${link} ${active === "reviews" ? on : off}`} data-i18n="nav_reviews">Reviews</a>
         <a href="/about" class={`${link} ${active === "about" ? on : off}`} data-i18n="nav_about">About</a>
+        <a href="/list-your-business" class={`${link} ${active === "list" ? on : off}`} data-i18n="nav_list">List your business</a>
       </nav>
       <button
         type="button"
@@ -53,6 +54,7 @@ const moff = "text-slate hover:bg-marble hover:text-ink";
     <a href="/" class={`${mlink} ${active === "map" ? mon : moff}`} data-i18n="nav_map">Map</a>
     <a href="/reviews" class={`${mlink} ${active === "reviews" ? mon : moff}`} data-i18n="nav_reviews">Reviews</a>
     <a href="/about" class={`${mlink} ${active === "about" ? mon : moff}`} data-i18n="nav_about">About</a>
+    <a href="/list-your-business" class={`${mlink} ${active === "list" ? mon : moff}`} data-i18n="nav_list">List your business</a>
   </nav>
 </header>
 

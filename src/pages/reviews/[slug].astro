@@ -4,10 +4,11 @@ import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
 import AndesBackdrop from "../../components/AndesBackdrop.astro";
 import Illustration from "../../components/Illustration.astro";
-import { publishedReviews } from "../../data/reviews";
 import type { Review } from "../../data/reviews";
+import { getPublishedReviews } from "../../lib/content";
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const publishedReviews = await getPublishedReviews();
   return publishedReviews.map((review) => ({
     params: { slug: review.slug },
     props: { review },
@@ -106,6 +107,9 @@ const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.
           <div class="mt-6 overflow-hidden rounded-xl border border-line"><div class="aspect-[4/3]"><Illustration name={e.miniIllo} /></div></div>
           <p class="mt-2 text-center text-[11.5px] text-slate">{e.miniCaption}</p>
         </div>
+
+        {/* Live specials — client-fetched from PocketBase, no rebuild needed */}
+        {review.businessSlug && <div id="rev-specials" data-business={review.businessSlug} class="mt-6"></div>}
       </aside>
     </div>
   </article>
@@ -123,3 +127,28 @@ const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.
 
   <Footer />
 </Base>
+
+<script>
+  import { fetchActiveSpecials, specialDateLabel } from "../../lib/specials";
+
+  const host = document.getElementById("rev-specials");
+  const slug = host?.dataset.business;
+  if (host && slug) {
+    const esc = (s = "") =>
+      s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+    fetchActiveSpecials(slug).then((specials) => {
+      if (!specials.length) return;
+      host.innerHTML = `<div class="rounded-2xl border border-gold/40 bg-gold/5 p-6">
+        <p class="eyebrow text-[10px] font-bold uppercase text-cinnabar">Current specials</p>
+        <ul class="mt-3 space-y-3">${specials
+          .map(
+            (s) => `<li>
+            <p class="font-display text-[1.05rem] font-semibold text-indigo">${esc(s.title)}</p>
+            ${s.description ? `<p class="mt-0.5 text-[13.5px] leading-snug text-slate">${esc(s.description)}</p>` : ""}
+            ${specialDateLabel(s) ? `<p class="mt-1 text-[12px] font-semibold text-cinnabar">${esc(specialDateLabel(s))}</p>` : ""}
+          </li>`
+          )
+          .join("")}</ul></div>`;
+    });
+  }
+</script>

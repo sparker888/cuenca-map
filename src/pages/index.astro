@@ -7,7 +7,13 @@ import CuencaMapGL from "../components/CuencaMapGL.astro";
 // Revert to the Leaflet map any time: swap the import + tag below for CuencaMap.
 // import CuencaMap from "../components/CuencaMap.astro";
 import ReviewCard from "../components/ReviewCard.astro";
-import { reviews } from "../data/reviews";
+import { getReviews, getPlaces, getCategoryMeta } from "../lib/content";
+
+const [reviews, places, categoryMeta] = await Promise.all([
+  getReviews(),
+  getPlaces(),
+  getCategoryMeta(),
+]);
 ---
 
 <Base title="Cuenca — Expat Map">
@@ -30,7 +36,7 @@ import { reviews } from "../data/reviews";
     </div>
 
     <div class="relative mx-auto max-w-[1240px] px-6 pb-12">
-      <CuencaMapGL />
+      <CuencaMapGL places={places} categoryMeta={categoryMeta} />
       <!-- Revert: replace <CuencaMapGL /> with <CuencaMap /> (and swap the import above). -->
       <p class="mt-3 text-center text-[12px] text-[#7e8ba0]" data-i18n="map_caption">Tap a gold pin to open the listing — featured spots link straight to our full review.</p>
     </div>

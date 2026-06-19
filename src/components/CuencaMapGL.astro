@@ -3,11 +3,21 @@
 // with road/place labels, plus the real rivers recolored light-blue and the
 // major arteries (motorway/trunk/primary) recolored gold.
 // The Leaflet version (CuencaMap.astro) is kept as a one-line revert — see index.astro.
-import { places, categoryMeta } from "../data/places";
 import Illustration from "./Illustration.astro";
+import type { Place, CategoryMeta } from "../data/places";
+
+interface Props {
+  places: Place[];
+  categoryMeta: CategoryMeta;
+}
+const { places, categoryMeta } = Astro.props;
 
 const categories = Object.entries(categoryMeta).map(([key, meta]) => ({ key, ...meta }));
 const premium = places.filter((p) => p.tier === "premium" && p.illo);
+
+// Serialized for the client script below — baked at build time, so the map stays
+// fully static. `<` is escaped to keep the JSON from breaking out of the tag.
+const cmData = JSON.stringify({ places, categoryMeta }).replace(/</g, "\\u003c");
 ---
 
 <div class="relative overflow-hidden rounded-2xl border border-indigo-700/60 shadow-[0_28px_70px_-30px_rgba(0,0,0,.7)]" style="background:#0c1626">
@@ -17,7 +27,7 @@ const premium = places.filter((p) => p.tier === "premium" && p.illo);
   >
     <button data-filter="all" class="cm-chip flex-none whitespace-nowrap rounded-full bg-gold px-3.5 py-1.5 text-[13px] font-semibold text-[#3a2a08]">All</button>
     {categories.map((c) => (
-      <button data-filter={c.key} class="cm-chip flex-none whitespace-nowrap rounded-full border border-white/20 px-3.5 py-1.5 text-[13px] text-[#9fb0c6]"></button>
+      <button data-filter={c.key} class="cm-chip flex-none whitespace-nowrap rounded-full border border-white/15 bg-[#0e1a2e]/55 px-3.5 py-1.5 text-[13px] text-[#dbe4f0] backdrop-blur-md"></button>
     ))}
   </div>
 
@@ -42,14 +52,23 @@ const premium = places.filter((p) => p.tier === "premium" && p.illo);
     ))}
   </div>
   <span hidden id="cm-contact" data-email="hello@gravitaldigital.com"></span>
+  <script type="application/json" id="cm-data" set:html={cmData}></script>
 </div>
 
 <script>
   import maplibregl from "maplibre-gl";
   import "maplibre-gl/dist/maplibre-gl.css";
-  import { places, categoryMeta } from "../data/places";
   import { UI, getLang } from "../i18n/ui";
+  import { fetchActiveSpecials, specialDateLabel } from "../lib/specials";
   import type { Place, Category } from "../data/places";
+
+  // Build-time data, embedded as JSON by the component above.
+  const cmData = JSON.parse(document.getElementById("cm-data")!.textContent!) as {
+    places: Place[];
+    categoryMeta: Record<Category, { label: string; color: string }>;
+  };
+  const places = cmData.places;
+  const categoryMeta = cmData.categoryMeta;
 
   const t = (key: string) => UI[getLang()]?.[key] ?? UI.en[key] ?? key;
   const catLabel = (cat: string) => t("cat_" + cat);
@@ -133,14 +152,14 @@ const premium = places.filter((p) => p.tier === "premium" && p.illo);
   // ---- Filters ----
   let active = "all";
   const chips = [...document.querySelectorAll<HTMLButtonElement>(".cm-chip")];
-  const BASE = "cm-chip flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] transition";
+  const BASE = "cm-chip flex-none whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] backdrop-blur-md transition";
   const dot = (f: string) => (f === "all" ? "" : `<span class="mr-1.5 inline-block h-2 w-2 rounded-full align-middle" style="background:${categoryMeta[f as Category].color}"></span>`);
   function paintChips() {
     chips.forEach((c) => {
       const f = c.dataset.filter!, on = f === active;
       c.className = on
-        ? `${BASE} font-semibold ${f === "all" ? "bg-gold text-[#3a2a08]" : "bg-paper text-indigo"}`
-        : `${BASE} border border-white/20 text-[#9fb0c6] hover:text-[#f4efe2]`;
+        ? `${BASE} font-semibold shadow-sm ${f === "all" ? "bg-gold text-[#3a2a08]" : "bg-paper text-indigo"}`
+        : `${BASE} border border-white/15 bg-[#0e1a2e]/55 text-[#dbe4f0] hover:bg-[#16243b]/75 hover:text-white`;
       c.innerHTML = `${dot(f)}${f === "all" ? t("filter_all") : catLabel(f)}`;
     });
   }
@@ -181,7 +200,7 @@ const premium = places.filter((p) => p.tier === "premium" && p.illo);
     const featured = p.tier === "premium";
     const reviewBtn = p.reviewSlug
       ? `<a href="/reviews/${p.reviewSlug}" class="mt-4 flex items-center justify-between rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-soft transition hover:bg-gold/20">★ ${t("panel_review")} <span>→</span></a>`
-      : `<a href="mailto:${esc(contact)}?subject=${encodeURIComponent("Featured listing for " + p.name)}" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;
+      : `<a href="/list-your-business" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;
     panel.innerHTML = `
       <button data-close class="absolute right-3.5 top-3 text-xl leading-none text-white/60 hover:text-white">×</button>
       ${featured ? `<div class="mb-4 -mx-1 overflow-hidden rounded-xl">${illoFor(p.id)}</div>` : ""}
@@ -200,6 +219,21 @@ const premium = places.filter((p) => p.tier === "premium" && p.illo);
     panel.scrollTop = 0;
     panel.querySelector("[data-close]")?.addEventListener("click", () => panel.classList.add("hidden"));
     if (fly) map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 15.5), duration: 0.8 });
+
+    // Live specials — client-fetched, so they appear without a site rebuild.
+    const specialsHost = document.createElement("div");
+    panel.appendChild(specialsHost);
+    fetchActiveSpecials(p.id).then((specials) => {
+      if (lastId !== id || !specials.length) return;
+      specialsHost.innerHTML = `<div class="mt-5 border-t border-white/10 pt-4">
+        <p class="eyebrow text-[10px] font-bold uppercase text-gold-soft">${t("panel_specials")}</p>
+        <ul class="mt-2 space-y-2">${specials.map((s) => `
+          <li class="rounded-lg border border-gold/25 bg-gold/5 px-3 py-2">
+            <p class="text-[13px] font-semibold text-[#f4efe2]">${esc(s.title)}</p>
+            ${s.description ? `<p class="mt-0.5 text-[12.5px] leading-snug text-[#cdd6e3]">${esc(s.description)}</p>` : ""}
+            ${specialDateLabel(s) ? `<p class="mt-1 text-[11px] text-gold-soft">${esc(specialDateLabel(s))}</p>` : ""}
+          </li>`).join("")}</ul></div>`;
+    });
   }
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") panel.classList.add("hidden"); });
 

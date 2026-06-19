@@ -1,0 +1,29 @@
+app = "cuenca-map-production"
+primary_region = "dfw"
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Single always-on machine so client fetches (live specials) and the admin UI
+  # never cold-start, and so the mounted volume has one consistent writer.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/api/health"
+    timeout = "5s"
+
+[[mounts]]
+  source = "pb_data"
+  destination = "/pb/pb_data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpus = 1

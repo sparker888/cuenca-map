@@ -113,6 +113,7 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
           <button type="submit" class="mt-1 rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft" data-i18n="form_send">Send</button>
         </div>
         <p id="form-thanks" class="mt-4 hidden text-sm font-semibold text-green" data-i18n="form_thanks">Thanks — we'll be in touch soon.</p>
+        <p id="form-error" class="mt-4 hidden text-sm font-semibold text-cinnabar" data-i18n="form_error">Something went wrong — please try again.</p>
       </form>
     </div>
   </section>
@@ -121,11 +122,31 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
 </Base>
 
 <script>
-  // Static demo — wire to a real endpoint / mailto / form service for production.
+  import { createLead } from "../lib/leads";
+
   const form = document.getElementById("biz-form") as HTMLFormElement | null;
-  form?.addEventListener("submit", (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    form.querySelectorAll("input,textarea,button").forEach((el) => ((el as HTMLInputElement).disabled = true));
-    document.getElementById("form-thanks")?.classList.remove("hidden");
+    const fd = new FormData(form);
+    const businessName = String(fd.get("business") || "").trim();
+    const note = String(fd.get("message") || "").trim();
+
+    const btn = form.querySelector("button[type=submit]") as HTMLButtonElement;
+    btn.disabled = true;
+
+    const ok = await createLead({
+      name: String(fd.get("name") || "").trim(),
+      email: String(fd.get("email") || "").trim(),
+      message: [businessName && `Business: ${businessName}`, note].filter(Boolean).join("\n"),
+      source: "about-cta",
+    });
+
+    if (ok) {
+      form.querySelectorAll("input,textarea,button").forEach((el) => ((el as HTMLInputElement).disabled = true));
+      document.getElementById("form-thanks")?.classList.remove("hidden");
+    } else {
+      btn.disabled = false;
+      document.getElementById("form-error")?.classList.remove("hidden");
+    }
   });
 </script>

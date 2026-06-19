@@ -6,7 +6,7 @@ export type Lang = "en" | "es";
 
 export const UI: Record<Lang, Record<string, string>> = {
   en: {
-    nav_map: "Map", nav_reviews: "Reviews", nav_design: "Design system", nav_about: "About",
+    nav_map: "Map", nav_reviews: "Reviews", nav_design: "Design system", nav_about: "About", nav_list: "List your business",
     hero_eyebrow: "Ecuador - Andes Mountains",
     hero_title: "The places expats love in Cuenca",
     hero_dek: "An honest, hand-mapped guide to El Centro and beyond — landmarks, markets, parks, and the cafés worth a long morning.",
@@ -17,6 +17,7 @@ export const UI: Record<Lang, Record<string, string>> = {
     legend_reviewed: "Reviewed",
     panel_hours: "Hours", panel_directions: "Get directions", panel_website: "Website",
     panel_review: "Read our full review", panel_claim: "Own this business? Get a featured listing →",
+    panel_specials: "Current specials",
     fav: "Local favorite",
     show_eyebrow: "From the guide", show_title: "Restaurants we've reviewed",
     show_dek: "We eat everywhere so you don't have to. These are the spots we keep going back to — written up in full, no sponsored fluff.",
@@ -35,10 +36,15 @@ export const UI: Record<Lang, Record<string, string>> = {
     watch_eyebrow: "Watch", videos_title: "Videos & guides", new_badge: "New · In production",
     biz_eyebrow: "For business owners", cta_title: "Is your business missing?", cta_title2: "Add it to the map.",
     cta_body: "A pin on the map is always free. Featured listings — photos and a full, honest review — are how the service keeps the lights on, but there's no hard sell here. Tell us about your place and we'll take it from there.",
-    form_name: "Your name", form_business: "Business name", form_email: "Email", form_message: "Anything we should know? (optional)", form_send: "Send", form_thanks: "Thanks — we'll be in touch soon.",
+    form_name: "Your name", form_business: "Business name", form_email: "Email", form_message: "Anything we should know? (optional)", form_send: "Send", form_thanks: "Thanks — we'll be in touch soon.", form_error: "Something went wrong — please try again.",
+    list_eyebrow: "For business owners", list_title: "List your business in Cuenca",
+    list_dek: "A pin on the map is always free. Featured listings — photos, hours, live specials, and a full honest review — are limited per category. Here's what's open right now.",
+    list_avail: "Availability by category", list_remaining: "open", list_full: "Full — join the waitlist",
+    wl_title: "Join the waitlist", wl_dek: "Tell us about your place and which category you're in. We'll reach out as a featured slot opens up.",
+    wl_cat: "Category", wl_send: "Join the waitlist", wl_thanks: "You're on the list — we'll be in touch soon.",
   },
   es: {
-    nav_map: "Mapa", nav_reviews: "Reseñas", nav_design: "Sistema de diseño", nav_about: "Acerca de",
+    nav_map: "Mapa", nav_reviews: "Reseñas", nav_design: "Sistema de diseño", nav_about: "Acerca de", nav_list: "Publica tu negocio",
     hero_eyebrow: "Ecuador - Cordillera de los Andes",
     hero_title: "Los lugares que enamoran a los expats en Cuenca",
     hero_dek: "Una guía honesta y trazada a mano de El Centro y sus alrededores: monumentos, mercados, parques y los cafés que merecen una mañana entera.",
@@ -49,6 +55,7 @@ export const UI: Record<Lang, Record<string, string>> = {
     legend_reviewed: "Reseñado",
     panel_hours: "Horario", panel_directions: "Cómo llegar", panel_website: "Sitio web",
     panel_review: "Leer nuestra reseña completa", panel_claim: "¿Es tu negocio? Consigue una ficha destacada →",
+    panel_specials: "Especiales actuales",
     fav: "Favorito local",
     show_eyebrow: "De la guía", show_title: "Restaurantes que hemos reseñado",
     show_dek: "Comemos en todas partes para que tú no tengas que hacerlo. Estos son los lugares a los que volvemos, reseñados a fondo y sin relleno patrocinado.",
@@ -67,7 +74,12 @@ export const UI: Record<Lang, Record<string, string>> = {
     watch_eyebrow: "Ver", videos_title: "Videos y guías", new_badge: "Nuevo · En producción",
     biz_eyebrow: "Para negocios", cta_title: "¿Falta tu negocio?", cta_title2: "Súmalo al mapa.",
     cta_body: "Un pin en el mapa siempre es gratis. Las fichas destacadas — fotos y una reseña completa y honesta — son lo que mantiene vivo el servicio, pero aquí no hay presión. Cuéntanos sobre tu lugar y nos encargamos del resto.",
-    form_name: "Tu nombre", form_business: "Nombre del negocio", form_email: "Correo", form_message: "¿Algo que debamos saber? (opcional)", form_send: "Enviar", form_thanks: "Gracias, te escribiremos pronto.",
+    form_name: "Tu nombre", form_business: "Nombre del negocio", form_email: "Correo", form_message: "¿Algo que debamos saber? (opcional)", form_send: "Enviar", form_thanks: "Gracias, te escribiremos pronto.", form_error: "Algo salió mal — inténtalo de nuevo.",
+    list_eyebrow: "Para negocios", list_title: "Publica tu negocio en Cuenca",
+    list_dek: "Un pin en el mapa siempre es gratis. Las fichas destacadas — fotos, horario, especiales en vivo y una reseña completa y honesta — son limitadas por categoría. Esto es lo que hay disponible ahora.",
+    list_avail: "Disponibilidad por categoría", list_remaining: "disponibles", list_full: "Lleno — únete a la lista",
+    wl_title: "Únete a la lista de espera", wl_dek: "Cuéntanos sobre tu lugar y en qué categoría estás. Te contactaremos cuando se abra un cupo destacado.",
+    wl_cat: "Categoría", wl_send: "Unirme a la lista", wl_thanks: "Estás en la lista — te escribiremos pronto.",
   },
 };
 

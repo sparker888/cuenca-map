@@ -5,9 +5,10 @@ import Footer from "../../components/Footer.astro";
 import AndesBackdrop from "../../components/AndesBackdrop.astro";
 import ReviewCard from "../../components/ReviewCard.astro";
 import Illustration from "../../components/Illustration.astro";
-import { reviews } from "../../data/reviews";
+import { getReviews } from "../../lib/content";
 import { CAT_KEY_BY_LABEL } from "../../i18n/ui";
 
+const reviews = await getReviews();
 const [lead, ...rest] = reviews;
 const leadCatKey = CAT_KEY_BY_LABEL[lead.category] ?? "";
 ---
