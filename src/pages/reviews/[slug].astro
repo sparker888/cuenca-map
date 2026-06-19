@@ -84,9 +84,10 @@ const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.
         })}
       </div>
 
-      <!-- Sidebar: the essentials -->
+      <!-- Sidebar: the essentials + live specials, sticking as one unit -->
       <aside class="lg:pt-2">
-        <div class="sticky top-24 rounded-2xl border border-line bg-marble/70 p-6">
+        <div class="sticky top-24 space-y-6">
+        <div class="rounded-2xl border border-line bg-marble/70 p-6">
           <p class="eyebrow text-[10px] font-bold uppercase text-cinnabar">The essentials</p>
           <h3 class="mt-1.5 font-display text-[1.5rem] font-semibold leading-tight text-indigo">{review.name}</h3>
 
@@ -108,8 +109,10 @@ const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.
           <p class="mt-2 text-center text-[11.5px] text-slate">{e.miniCaption}</p>
         </div>
 
-        {/* Live specials — client-fetched from PocketBase, no rebuild needed */}
-        {review.businessSlug && <div id="rev-specials" data-business={review.businessSlug} class="mt-6"></div>}
+        {/* Live specials — client-fetched from PocketBase, no rebuild needed.
+            Inside the sticky wrapper so the sidebar pins as one unit. */}
+        {review.businessSlug && <div id="rev-specials" data-business={review.businessSlug}></div>}
+        </div>
       </aside>
     </div>
   </article>

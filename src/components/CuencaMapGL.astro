@@ -78,7 +78,12 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
   const categoryMeta = cmData.categoryMeta;
 
   const t = (key: string) => UI[getLang()]?.[key] ?? UI.en[key] ?? key;
-  const catLabel = (cat: string) => t("cat_" + cat);
+  // Translation if present, else the category's own label from the data — never
+  // the raw "cat_<id>" key (which has no i18n entry for newer sellable categories).
+  const catLabel = (cat: string) => {
+    const v = t("cat_" + cat);
+    return v === "cat_" + cat ? categoryMeta[cat as Category]?.label ?? cat : v;
+  };
   const contact = document.getElementById("cm-contact")!.dataset.email || "";
   const esc = (s = "") => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
   const dirUrl = (p: Place) => `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
