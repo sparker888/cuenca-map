@@ -92,11 +92,12 @@ export interface CategorySlot {
   remaining: number;
 }
 
-// Per-category listing inventory: cap (from categories) vs. count of published
-// businesses, for the "X of N slots remaining" display on /list-your-business.
+// Sales inventory: ONLY sellable (paid) categories — cap vs. count of published
+// businesses — for the "X of N slots remaining" display on /list-your-business.
+// Curated/tourist categories (sellable=false) are intentionally excluded.
 export async function getInventory(): Promise<CategorySlot[]> {
   const [cats, biz] = await Promise.all([
-    pbList<any>("categories", { sort: "order" }),
+    pbList<any>("categories", { sort: "order", filter: "sellable = true" }),
     pbList<any>("businesses", { expand: "category" }),
   ]);
   const counts: Record<string, number> = {};

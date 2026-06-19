@@ -14,6 +14,7 @@ export const UI: Record<Lang, Record<string, string>> = {
     map_caption: "Tap a gold pin to open the listing — featured spots link straight to our full review.",
     filter_all: "All",
     cat_landmark: "Landmarks & plazas", cat_market: "Markets", cat_museum: "Museums & culture", cat_outdoors: "Parks & views", cat_food: "Food & cafés",
+    "cat_restaurants-cafes": "Restaurants & cafés", cat_dental: "Dental", "cat_real-estate": "Real estate", "cat_visa-legal": "Visa & legal", cat_tours: "Tours", cat_bars: "Bars",
     legend_reviewed: "Reviewed",
     panel_hours: "Hours", panel_directions: "Get directions", panel_website: "Website",
     panel_review: "Read our full review", panel_claim: "Own this business? Get a featured listing →",
@@ -52,6 +53,7 @@ export const UI: Record<Lang, Record<string, string>> = {
     map_caption: "Toca un pin dorado para abrir la ficha: los lugares destacados enlazan directo a nuestra reseña completa.",
     filter_all: "Todos",
     cat_landmark: "Monumentos y plazas", cat_market: "Mercados", cat_museum: "Museos y cultura", cat_outdoors: "Parques y miradores", cat_food: "Comida y cafés",
+    "cat_restaurants-cafes": "Restaurantes y cafés", cat_dental: "Dental", "cat_real-estate": "Bienes raíces", "cat_visa-legal": "Visa y legal", cat_tours: "Tours", cat_bars: "Bares",
     legend_reviewed: "Reseñado",
     panel_hours: "Horario", panel_directions: "Cómo llegar", panel_website: "Sitio web",
     panel_review: "Leer nuestra reseña completa", panel_claim: "¿Es tu negocio? Consigue una ficha destacada →",
@@ -85,7 +87,7 @@ export const UI: Record<Lang, Record<string, string>> = {
 
 // English review-card category label → i18n key
 export const CAT_KEY_BY_LABEL: Record<string, string> = {
-  "Landmarks & plazas": "cat_landmark", "Markets": "cat_market", "Museums & culture": "cat_museum", "Parks & views": "cat_outdoors", "Food & cafés": "cat_food",
+  "Landmarks & plazas": "cat_landmark", "Markets": "cat_market", "Museums & culture": "cat_museum", "Parks & views": "cat_outdoors", "Food & cafés": "cat_food", "Restaurants & cafés": "cat_restaurants-cafes",
 };
 
 export function getLang(): Lang {

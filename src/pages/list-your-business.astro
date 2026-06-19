@@ -13,6 +13,8 @@ const slots = inventory.map((c) => ({
   ...c,
   pct: c.cap > 0 ? Math.min(100, Math.round((c.used / c.cap) * 100)) : 100,
   full: c.remaining <= 0,
+  remainEn: `${c.remaining} of ${c.cap} slots remaining`,
+  remainEs: `${c.remaining} de ${c.cap} cupos disponibles`,
 }));
 
 const inputCls =
@@ -52,10 +54,12 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
             <span class="eyebrow text-[10px] font-bold uppercase text-cinnabar" data-i18n={`cat_${c.key}`}>{c.label}</span>
           </div>
           <p class="mt-3 font-display text-[2rem] font-semibold leading-none text-indigo">
-            {c.remaining}<span class="text-[1rem] font-medium text-slate"> / {c.cap}</span>
+            {c.used}<span class="text-[1rem] font-medium text-slate"> / {c.cap}</span>
           </p>
           <p class="mt-1 text-[13px] text-slate">
-            {c.full ? <span data-i18n="list_full">Full — join the waitlist</span> : <span data-i18n="list_remaining">open</span>}
+            {c.full
+              ? <span data-i18n="list_full">Full — join the waitlist</span>
+              : <span data-en={c.remainEn} data-es={c.remainEs}>{c.remainEn}</span>}
           </p>
           <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-marble">
             <div class="h-full rounded-full" style={`width:${c.pct}%;background:${c.full ? "#c0533b" : c.color}`}></div>

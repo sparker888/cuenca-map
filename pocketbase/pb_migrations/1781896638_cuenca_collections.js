@@ -78,6 +78,16 @@ migrate((app) => {
       {
         "help": "",
         "hidden": false,
+        "id": "bool2178826593",
+        "name": "sellable",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "help": "",
+        "hidden": false,
         "id": "number2570291121",
         "max": null,
         "min": 0,
@@ -126,7 +136,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
     "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-19 17:11:10.345Z",
+    "updated": "2026-06-19 19:09:17.465Z",
     "system": false
   },
   {
@@ -236,7 +246,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
     "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-19 17:11:10.607Z",
+    "updated": "2026-06-19 19:09:17.731Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -606,7 +616,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
     "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-19 17:11:10.826Z",
+    "updated": "2026-06-19 19:09:17.948Z",
     "system": false
   },
   {
@@ -974,7 +984,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
     "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-19 17:11:11.048Z",
+    "updated": "2026-06-19 19:09:18.162Z",
     "system": false
   },
   {
@@ -1087,7 +1097,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-19 17:11:11.271Z",
+    "updated": "2026-06-19 19:09:18.381Z",
     "system": false
   },
   {
@@ -1216,7 +1226,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-19 17:11:11.483Z",
+    "updated": "2026-06-19 19:09:18.586Z",
     "system": false
   },
   {
@@ -1352,7 +1362,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-19 17:11:11.691Z",
+    "updated": "2026-06-19 19:09:18.809Z",
     "system": false
   },
   {
@@ -1505,7 +1515,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-19 17:11:11.902Z",
+    "updated": "2026-06-19 19:09:19.022Z",
     "system": false
   }
 ];

@@ -8,11 +8,17 @@ interface Props {
 }
 const { places, categoryMeta } = Astro.props;
 
-const categories = Object.entries(categoryMeta).map(([key, meta]) => ({ key, ...meta }));
+// Only surface categories that actually have listings.
+const present = new Set(places.map((p) => p.category));
+const presentMeta = Object.fromEntries(
+  Object.entries(categoryMeta).filter(([key]) => present.has(key as any))
+) as typeof categoryMeta;
+
+const categories = Object.entries(presentMeta).map(([key, meta]) => ({ key, ...meta }));
 const premium = places.filter((p) => p.tier === "premium" && p.illo);
 
 // Serialized for the client script (build-time data; map stays static).
-const cmData = JSON.stringify({ places, categoryMeta }).replace(/</g, "\\u003c");
+const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</g, "\\u003c");
 ---
 
 <div class="relative overflow-hidden rounded-2xl border border-indigo-700/60 shadow-[0_28px_70px_-30px_rgba(0,0,0,.7)]" style="background:#0c1626">

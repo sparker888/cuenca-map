@@ -110,6 +110,9 @@ async function main() {
       txt("key", { required: true, presentable: true }),
       txt("label", { required: true }),
       txt("color"),
+      // sellable = a paid business category (carries a cap, shown on
+      // /list-your-business). false = free curated editorial/tourist category.
+      bool("sellable"),
       num("cap", { onlyInt: true, min: 0 }),
       num("order", { onlyInt: true }),
       created(), updated(),

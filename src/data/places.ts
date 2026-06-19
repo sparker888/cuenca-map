@@ -6,7 +6,18 @@
 // To edit listings (tier, tagline, hours, reviewSlug, …) use the PocketBase
 // admin UI; a static-affecting change triggers a Netlify rebuild.
 
-export type Category = "landmark" | "market" | "museum" | "outdoors" | "food";
+// Curated (free) + sellable (paid) category keys. Data lives in PocketBase.
+export type Category =
+  | "landmark"
+  | "market"
+  | "museum"
+  | "outdoors"
+  | "restaurants-cafes"
+  | "dental"
+  | "real-estate"
+  | "visa-legal"
+  | "tours"
+  | "bars";
 export type Tier = "standard" | "premium";
 export type IlloName = "dome" | "facade" | "market" | "terrace" | "river";
 
