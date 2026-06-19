@@ -9,6 +9,7 @@ import Footer from "../components/Footer.astro";
 const inputCls =
   "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
 const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 <Base title="Owner portal — Cuenca Maps" description="Manage your Cuenca Maps listing.">
@@ -31,8 +32,7 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
           <span class={labelCls}>Password</span>
           <input type="password" name="password" required class={inputCls} autocomplete="current-password" />
         </label>
-        <!-- Turnstile widget mounts here (task 02) -->
-        <div id="login-turnstile"></div>
+        {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light"></div>}
         <button type="submit" class="rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft">Sign in</button>
       </form>
       <div class="mt-4 flex items-center gap-3 text-[12px] text-slate"><span class="h-px flex-1 bg-line"></span>or<span class="h-px flex-1 bg-line"></span></div>
@@ -57,6 +57,8 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
 
     <div id="owner-loading" class="mt-8 text-sm text-slate">Loading…</div>
   </section>
+
+  {TURNSTILE_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
 
   <Footer />
 </Base>
@@ -91,7 +93,7 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
     e.preventDefault();
     const fd = new FormData(e.target as HTMLFormElement);
     const err = $("login-error"); err.classList.add("hidden");
-    const token = (window as any).__turnstileToken?.("login");
+    const token = String(fd.get("cf-turnstile-response") || "");
     try {
       await pb.collection("users").authWithPassword(
         String(fd.get("email")), String(fd.get("password")),

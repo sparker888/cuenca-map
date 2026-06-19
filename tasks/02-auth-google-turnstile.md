@@ -1,5 +1,25 @@
 # 02 — Auth: Google OAuth + Cloudflare Turnstile
-Status: backlog · Priority: P0
+Status: Turnstile DONE & verified (2026-06-19); Google OAuth WIRED, pending Google creds · Priority: P0
+
+Done:
+- Turnstile widget on owner login (`/owner`), waitlist (`/list-your-business`), and the
+  /about contact form. Token sent as `X-Turnstile-Token`; verified server-side via
+  Cloudflare siteverify in `pocketbase/pb_hooks/turnstile.pb.js` on leads-create and
+  users password-auth. Secret in fly secret `TURNSTILE_SECRET_KEY`; site key in
+  `PUBLIC_TURNSTILE_SITE_KEY` (public). Verified: missing/invalid token rejected (400),
+  valid token accepted (success path tested via Cloudflare test secret round-trip).
+- Email/password login works (owner portal, task 01).
+- Google "Sign in with Google" button wired (`authWithOAuth2({provider:'google'})`).
+
+Blocked on user:
+- Google OAuth provider not yet enabled — needs a Google Cloud OAuth Web client
+  (redirect URI https://cuenca-map-production.fly.dev/api/oauth2-redirect). Add
+  GOOGLE_OAUTH_CLIENT_ID / GOOGLE_OAUTH_CLIENT_SECRET to .env and run
+  `node pocketbase/scripts/configure-oauth.mjs`. Until then Google sign-in errors gracefully.
+
+DEPLOY DEPENDENCY: set `PUBLIC_TURNSTILE_SITE_KEY` in Netlify and add the site's
+hostnames to the Turnstile widget's allowlist — otherwise the widget won't render and
+(since the backend now requires a token) all logins + form submits would be rejected.
 
 ## Goal
 Owner login supporting email/password + "Sign in with Google", with Turnstile bot protection on

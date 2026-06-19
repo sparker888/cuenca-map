@@ -20,6 +20,7 @@ const slots = inventory.map((c) => ({
 const inputCls =
   "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
 const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 ---
 
 <Base
@@ -104,6 +105,7 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
             <span class={labelCls} data-i18n="form_message">Anything we should know? (optional)</span>
             <textarea name="message" rows="3" class={`${inputCls} resize-none`}></textarea>
           </label>
+          {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light"></div>}
           <button type="submit" class="mt-1 rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft" data-i18n="wl_send">Join the waitlist</button>
         </div>
         <p id="wl-thanks" class="mt-4 hidden text-sm font-semibold text-green" data-i18n="wl_thanks">You're on the list — we'll be in touch soon.</p>
@@ -111,6 +113,8 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
       </form>
     </div>
   </section>
+
+  {TURNSTILE_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
 
   <Footer />
 </Base>
@@ -134,7 +138,7 @@ const labelCls = "text-[12px] font-bold uppercase tracking-wide text-slate";
       category: String(fd.get("category") || "") || undefined,
       message: [businessName && `Business: ${businessName}`, note].filter(Boolean).join("\n"),
       source: "waitlist",
-    });
+    }, String(fd.get("cf-turnstile-response") || ""));
 
     if (ok) {
       form.querySelectorAll("input,textarea,select,button").forEach((el) => ((el as HTMLInputElement).disabled = true));
