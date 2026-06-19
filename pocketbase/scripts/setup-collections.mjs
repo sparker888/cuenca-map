@@ -140,7 +140,7 @@ async function main() {
       txt("slug", { required: true, presentable: true }),
       txt("name", { required: true, presentable: true }),
       rel("category", categories.id, { required: true }),
-      sel("tier", ["standard", "premium"], { required: true }),
+      sel("tier", ["free", "enhanced", "premium"], { required: true }),
       num("lat", { required: true }),
       num("lng", { required: true }),
       txt("address"),
@@ -265,7 +265,7 @@ async function main() {
     fields: [
       rel("owner", "_pb_users_auth_", { required: true }),
       rel("business", businesses.id, {}),
-      sel("tier", ["standard", "premium"]),
+      sel("tier", ["free", "enhanced", "premium"]),
       sel("status", ["active", "canceled", "past_due", "trialing"]),
       txt("provider"),
       txt("externalId"),

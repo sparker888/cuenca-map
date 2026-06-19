@@ -20,7 +20,8 @@ const presentMeta = Object.fromEntries(
 ) as typeof categoryMeta;
 
 const categories = Object.entries(presentMeta).map(([key, meta]) => ({ key, ...meta }));
-const premium = places.filter((p) => p.tier === "premium" && p.illo);
+// Paid tiers (enhanced + premium) get the featured treatment; free do not.
+const premium = places.filter((p) => p.tier !== "free" && p.illo);
 
 // Serialized for the client script below — baked at build time, so the map stays
 // fully static. `<` is escaped to keep the JSON from breaking out of the tag.
@@ -141,7 +142,7 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
   // ---- Markers ----
   function markerEl(p: Place) {
     const color = categoryMeta[p.category].color;
-    const prem = p.tier === "premium";
+    const prem = p.tier !== "free";
     const el = document.createElement("div");
     el.className = prem ? "cm-pin cm-pin--premium" : "cm-pin";
     el.style.cssText = `width:${prem ? 32 : 22}px;height:${prem ? 32 : 22}px;cursor:pointer;`;
@@ -209,7 +210,7 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
     if (!p) return;
     lastId = id;
     const c = categoryMeta[p.category];
-    const featured = p.tier === "premium";
+    const featured = p.tier !== "free";
     const reviewBtn = p.reviewSlug
       ? `<a href="/reviews/${p.reviewSlug}" class="mt-4 flex items-center justify-between rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-soft transition hover:bg-gold/20">★ ${t("panel_review")} <span>→</span></a>`
       : `<a href="/list-your-business" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;

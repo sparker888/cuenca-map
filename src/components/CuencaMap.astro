@@ -15,7 +15,7 @@ const presentMeta = Object.fromEntries(
 ) as typeof categoryMeta;
 
 const categories = Object.entries(presentMeta).map(([key, meta]) => ({ key, ...meta }));
-const premium = places.filter((p) => p.tier === "premium" && p.illo);
+const premium = places.filter((p) => p.tier !== "free" && p.illo);
 
 // Serialized for the client script (build-time data; map stays static).
 const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</g, "\\u003c");
@@ -104,7 +104,7 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
 
   function makeIcon(p: Place) {
     const color = categoryMeta[p.category].color;
-    const prem = p.tier === "premium";
+    const prem = p.tier !== "free";
     return L.divIcon({
       className: prem ? "cm-pin cm-pin--premium" : "cm-pin",
       html: `<span class="cm-pin__dot" style="background:${color}">${prem ? '<span class="cm-pin__star">★</span>' : ""}</span>`,
@@ -169,7 +169,7 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
     if (!p) return;
     lastId = id;
     const c = categoryMeta[p.category];
-    const featured = p.tier === "premium";
+    const featured = p.tier !== "free";
     const reviewBtn = p.reviewSlug
       ? `<a href="/reviews/${p.reviewSlug}" class="mt-4 flex items-center justify-between rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-soft transition hover:bg-gold/20">★ ${t("panel_review")} <span>→</span></a>`
       : `<a href="/list-your-business" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;

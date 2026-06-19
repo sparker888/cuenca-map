@@ -18,7 +18,7 @@ export type Category =
   | "visa-legal"
   | "tours"
   | "bars";
-export type Tier = "standard" | "premium";
+export type Tier = "free" | "enhanced" | "premium";
 export type IlloName = "dome" | "facade" | "market" | "terrace" | "river";
 
 export interface Place {
