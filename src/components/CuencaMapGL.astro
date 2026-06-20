@@ -20,8 +20,8 @@ const presentMeta = Object.fromEntries(
 ) as typeof categoryMeta;
 
 const categories = Object.entries(presentMeta).map(([key, meta]) => ({ key, ...meta }));
-// Paid tiers (enhanced + premium) get the featured treatment; free do not.
-const premium = places.filter((p) => p.tier !== "free" && p.illo);
+// Only Premium gets the featured illustration in the panel.
+const premium = places.filter((p) => p.tier === "premium" && p.illo);
 
 // Serialized for the client script below — baked at build time, so the map stays
 // fully static. `<` is escaped to keep the JSON from breaking out of the tag.
@@ -142,11 +142,13 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
   // ---- Markers ----
   function markerEl(p: Place) {
     const color = categoryMeta[p.category].color;
-    const prem = p.tier !== "free";
+    // 3-step hierarchy: free (small) < enhanced (gold rim) < premium (gold + star).
+    const isPrem = p.tier === "premium", isEnh = p.tier === "enhanced";
+    const size = isPrem ? 32 : isEnh ? 27 : 22;
     const el = document.createElement("div");
-    el.className = prem ? "cm-pin cm-pin--premium" : "cm-pin";
-    el.style.cssText = `width:${prem ? 32 : 22}px;height:${prem ? 32 : 22}px;cursor:pointer;`;
-    el.innerHTML = `<span class="cm-pin__dot" style="background:${color}">${prem ? '<span class="cm-pin__star">★</span>' : ""}</span>`;
+    el.className = isPrem ? "cm-pin cm-pin--premium" : isEnh ? "cm-pin cm-pin--enhanced" : "cm-pin";
+    el.style.cssText = `width:${size}px;height:${size}px;cursor:pointer;`;
+    el.innerHTML = `<span class="cm-pin__dot" style="background:${color}">${isPrem ? '<span class="cm-pin__star">★</span>' : ""}</span>`;
     el.addEventListener("click", (e) => { e.stopPropagation(); select(p.id); });
     return el;
   }
@@ -210,7 +212,7 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
     if (!p) return;
     lastId = id;
     const c = categoryMeta[p.category];
-    const featured = p.tier !== "free";
+    const featured = p.tier === "premium";
     const reviewBtn = p.reviewSlug
       ? `<a href="/reviews/${p.reviewSlug}" class="mt-4 flex items-center justify-between rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-soft transition hover:bg-gold/20">★ ${t("panel_review")} <span>→</span></a>`
       : `<a href="/list-your-business" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;

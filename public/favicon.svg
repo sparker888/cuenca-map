@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Cuenca Maps">
   <defs>
-    <!-- Cuenca's flag: red over gold, as a hard-stop vertical split -->
-    <linearGradient id="cuencaFlag" x1="0" y1="0" x2="0" y2="1">
+    <!-- Cuenca's flag: red over gold. Hard split sits below the pinhole (in
+         user space, ~y=19.6 of 32) so the white hole reads fully on red. -->
+    <linearGradient id="cuencaFlag" gradientUnits="userSpaceOnUse" x1="16" y1="5.3" x2="16" y2="26.3">
       <stop offset="0%" stop-color="#c0533b"/>
-      <stop offset="52%" stop-color="#c0533b"/>
-      <stop offset="52%" stop-color="#d6a53c"/>
+      <stop offset="68%" stop-color="#c0533b"/>
+      <stop offset="68%" stop-color="#d6a53c"/>
       <stop offset="100%" stop-color="#d6a53c"/>
     </linearGradient>
   </defs>
