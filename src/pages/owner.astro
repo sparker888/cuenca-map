@@ -180,7 +180,10 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
           <label class="block"><span class="${LABEL}">${t("o_phone")}</span><input name="phone" value="${esc(b.phone)}" class="${INPUT}" /></label>
           <label class="block"><span class="${LABEL}">${t("o_whatsapp")}</span><input name="whatsapp" value="${esc(b.whatsapp)}" class="${INPUT}" placeholder="+593…" /></label>
         </div>
-        <label class="block"><span class="${LABEL}">${t("o_website")}</span><input name="website" type="url" value="${esc(b.website)}" class="${INPUT}" placeholder="https://…" /></label>
+        <div class="grid gap-4 sm:grid-cols-[1fr_auto]">
+          <label class="block"><span class="${LABEL}">${t("o_website")}</span><input name="website" type="url" value="${esc(b.website)}" class="${INPUT}" placeholder="https://…" /></label>
+          <label class="block"><span class="${LABEL}">${t("o_price")}</span><select name="priceTier" class="${INPUT}">${["", "$", "$$", "$$$"].map((v) => `<option value="${v}"${(b.priceTier || "") === v ? " selected" : ""}>${v || "—"}</option>`).join("")}</select></label>
+        </div>
         <div class="flex items-center gap-3">
           <button type="submit" class="${BTN}">${t("o_save")}</button>
           <span id="cfg-status" class="text-sm font-semibold text-green"></span>
@@ -228,6 +231,7 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
         await pb.collection("businesses").update(b.id, {
           tagline: fd.get("tagline"), description: fd.get("description"), hours,
           phone: fd.get("phone"), whatsapp: fd.get("whatsapp"), website: fd.get("website"),
+          priceTier: fd.get("priceTier"),
         });
         status.className = "text-sm font-semibold text-green";
         status.textContent = t("o_saved"); setTimeout(() => (status.textContent = ""), 2500);

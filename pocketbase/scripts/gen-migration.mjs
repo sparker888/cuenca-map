@@ -18,6 +18,14 @@ const token = (await (await fetch(`${BASE}/api/collections/_superusers/auth-with
 const all = (await (await fetch(`${BASE}/api/collections?perPage=200`, { headers: { Authorization: token } })).json()).items;
 const snapshot = KEEP.map((n) => all.find((c) => c.name === n)).filter(Boolean);
 
+// Strip oauth2 provider config: PocketBase redacts clientSecret in exports, so a
+// fresh-DB import of an enabled provider with a blank secret fails validation.
+// OAuth is environment/secret config, not committed schema — it's (re)enabled by
+// configure-oauth.mjs from .env. Keep the migration to pure schema.
+for (const c of snapshot) {
+  if (c.oauth2) c.oauth2 = { enabled: false, providers: [] };
+}
+
 const file = path.join(here, "..", "pb_migrations", `${STAMP}_cuenca_collections.js`);
 const out = `/// <reference path="../pb_data/types.d.ts" />
 

@@ -34,7 +34,7 @@ const catKey = CAT_KEY_BY_LABEL[review.category] ?? "";
     )}
   </div>
   <div class="flex flex-1 flex-col p-5">
-    <span class="eyebrow text-[10px] font-bold uppercase text-cinnabar" data-i18n={catKey}>{review.category}</span>
+    <span class="eyebrow text-[10px] font-bold uppercase text-cinnabar"><span data-i18n={catKey}>{review.category}</span>{review.businessPriceTier && <span class="text-slate"> · {review.businessPriceTier}</span>}</span>
     <h3 class={`mt-1.5 font-display ${titleSize} font-semibold leading-tight text-indigo`}>{review.name}</h3>
     <p class="mt-2 flex-1 text-[14.5px] leading-relaxed text-slate" data-en={review.dek} data-es={review.dekEs ?? review.dek}>{review.dek}</p>
     <span class:list={["mt-4 inline-flex items-center gap-2 text-sm font-semibold", review.published ? "text-cobalt" : "text-slate"]}>

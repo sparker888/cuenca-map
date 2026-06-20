@@ -136,7 +136,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
     "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-20 02:15:43.819Z",
+    "updated": "2026-06-20 14:36:06.988Z",
     "system": false
   },
   {
@@ -246,7 +246,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
     "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-20 02:15:44.041Z",
+    "updated": "2026-06-20 14:36:07.203Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -258,25 +258,8 @@ migrate((app) => {
       }
     },
     "oauth2": {
-      "providers": [
-        {
-          "pkce": null,
-          "name": "google",
-          "clientId": "1029318866509-pg43pg4l9omsstbou98gvss4eahp16lg.apps.googleusercontent.com",
-          "authURL": "",
-          "tokenURL": "",
-          "userInfoURL": "",
-          "displayName": "",
-          "extra": null
-        }
-      ],
-      "mappedFields": {
-        "id": "",
-        "name": "",
-        "username": "",
-        "avatarURL": ""
-      },
-      "enabled": true
+      "enabled": false,
+      "providers": []
     },
     "passwordAuth": {
       "enabled": true,
@@ -479,6 +462,22 @@ migrate((app) => {
         "type": "number"
       },
       {
+        "help": "",
+        "hidden": false,
+        "id": "select2628463297",
+        "maxSelect": 1,
+        "name": "priceTier",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "$",
+          "$$",
+          "$$$"
+        ]
+      },
+      {
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
@@ -523,8 +522,7 @@ migrate((app) => {
           "facade",
           "market",
           "terrace",
-          "river",
-          "pizza"
+          "river"
         ]
       },
       {
@@ -661,7 +659,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
     "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-20 02:15:44.248Z",
+    "updated": "2026-06-20 14:36:07.408Z",
     "system": false
   },
   {
@@ -796,8 +794,7 @@ migrate((app) => {
           "facade",
           "market",
           "terrace",
-          "river",
-          "pizza"
+          "river"
         ]
       },
       {
@@ -965,8 +962,7 @@ migrate((app) => {
           "facade",
           "market",
           "terrace",
-          "river",
-          "pizza"
+          "river"
         ]
       },
       {
@@ -1031,13 +1027,13 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
     "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-20 02:15:44.504Z",
+    "updated": "2026-06-20 14:36:07.621Z",
     "system": false
   },
   {
     "id": "pbc_2708086759",
-    "listRule": "",
-    "viewRule": "",
+    "listRule": "business.published = true || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
+    "viewRule": "business.published = true || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "createRule": "@request.auth.role = \"admin\" || business.owner = @request.auth.id",
     "updateRule": "@request.auth.role = \"admin\" || business.owner = @request.auth.id",
     "deleteRule": "@request.auth.role = \"admin\" || business.owner = @request.auth.id",
@@ -1144,13 +1140,13 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-20 02:15:44.710Z",
+    "updated": "2026-06-20 14:36:07.849Z",
     "system": false
   },
   {
     "id": "pbc_2973327975",
-    "listRule": "active = true || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
-    "viewRule": "active = true || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
+    "listRule": "(active = true && business.published = true) || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
+    "viewRule": "(active = true && business.published = true) || business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "createRule": "business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "updateRule": "business.owner = @request.auth.id || @request.auth.role = \"admin\"",
     "deleteRule": "business.owner = @request.auth.id || @request.auth.role = \"admin\"",
@@ -1273,7 +1269,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-20 02:15:44.921Z",
+    "updated": "2026-06-20 14:36:08.063Z",
     "system": false
   },
   {
@@ -1409,7 +1405,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-20 02:15:45.126Z",
+    "updated": "2026-06-20 14:36:08.264Z",
     "system": false
   },
   {
@@ -1609,7 +1605,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-20 02:15:45.335Z",
+    "updated": "2026-06-20 14:36:08.473Z",
     "system": false
   }
 ];

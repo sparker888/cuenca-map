@@ -34,6 +34,7 @@ export async function getPlaces(): Promise<Place[]> {
     address: opt(b.address),
     rating: opt(b.rating),
     ratingCount: opt(b.ratingCount),
+    priceTier: opt(b.priceTier),
     tagline: opt(b.tagline),
     description: opt(b.description),
     illo: opt(b.illo),
@@ -51,6 +52,7 @@ function mapReview(r: any): Review {
     placeId: "", // not needed at render time; relation lives on the record
     businessSlug: r.expand?.business?.slug,
     businessWhatsapp: r.expand?.business?.whatsapp || undefined,
+    businessPriceTier: r.expand?.business?.priceTier || undefined,
     published: !!r.published,
     name: r.name,
     category: r.category,

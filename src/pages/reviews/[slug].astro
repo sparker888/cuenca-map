@@ -44,7 +44,7 @@ const waShareHref = waShare(`Check out ${review.name} on Cuenca Maps: ${siteUrl}
       </div>
 
       <header class="relative mx-auto max-w-[760px] px-6 pt-7 pb-16 text-center">
-        <p class="eyebrow text-[11px] font-bold uppercase text-gold">{review.eyebrow}</p>
+        <p class="eyebrow text-[11px] font-bold uppercase text-gold">{review.eyebrow}{review.businessPriceTier && <span class="text-[#9fb0c6]"> · {review.businessPriceTier}</span>}</p>
         <h1 class="mx-auto mt-4 max-w-[16ch] font-display text-[2.7rem] font-semibold leading-[1.04] tracking-tight sm:text-[3.4rem]" set:html={review.title}></h1>
         <p class="mx-auto mt-5 max-w-[44ch] font-display text-[1.3rem] italic leading-snug text-[#b9c4d4]">{review.lede}</p>
 

@@ -9,7 +9,7 @@
 
 import { PB_URL as BASE, PB_ADMIN_EMAIL as EMAIL, PB_ADMIN_PASSWORD as PASSWORD } from "./_env.mjs";
 
-const ILLOS = ["dome", "facade", "market", "terrace", "river", "pizza"];
+const ILLOS = ["dome", "facade", "market", "terrace", "river"];
 
 let token = "";
 async function api(path, opts = {}) {
@@ -146,6 +146,7 @@ async function main() {
       txt("address"),
       num("rating"),
       num("ratingCount", { onlyInt: true }),
+      sel("priceTier", ["$", "$$", "$$$"]), // optional $/$$/$$$ indicator (task 05B)
       txt("tagline"),
       txt("description", { max: 0 }),
       sel("illo", ILLOS),
@@ -202,11 +203,12 @@ async function main() {
     indexes: ["CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"],
   });
 
-  // 5) media — public read, admin write
+  // 5) media — public read only for PUBLISHED businesses; owner/admin see their own
   await upsert({
     name: "media",
     type: "base",
-    listRule: "", viewRule: "",
+    listRule: 'business.published = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
+    viewRule: 'business.published = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
     createRule: '@request.auth.role = "admin" || business.owner = @request.auth.id',
     updateRule: '@request.auth.role = "admin" || business.owner = @request.auth.id',
     deleteRule: '@request.auth.role = "admin" || business.owner = @request.auth.id',
@@ -225,8 +227,8 @@ async function main() {
   await upsert({
     name: "events_specials",
     type: "base",
-    listRule: 'active = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
-    viewRule: 'active = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
+    listRule: '(active = true && business.published = true) || business.owner = @request.auth.id || @request.auth.role = "admin"',
+    viewRule: '(active = true && business.published = true) || business.owner = @request.auth.id || @request.auth.role = "admin"',
     createRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
     updateRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
     deleteRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',

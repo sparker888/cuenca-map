@@ -19,7 +19,8 @@ export type Category =
   | "tours"
   | "bars";
 export type Tier = "free" | "enhanced" | "premium";
-export type IlloName = "dome" | "facade" | "market" | "terrace" | "river" | "pizza";
+export type IlloName = "dome" | "facade" | "market" | "terrace" | "river";
+export type PriceTier = "$" | "$$" | "$$$";
 
 export interface Place {
   id: string;
@@ -31,6 +32,7 @@ export interface Place {
   address?: string;
   rating?: number;
   ratingCount?: number;
+  priceTier?: PriceTier; // $ / $$ / $$$ — optional, shown near the category tag
 
   // Premium-only fields (shown on featured listings)
   tagline?: string;
