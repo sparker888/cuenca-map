@@ -20,6 +20,7 @@ export interface Review {
   placeId: string;
   published: boolean;
   businessSlug?: string; // slug of the linked business — used to fetch live specials
+  businessWhatsapp?: string; // linked business's whatsapp number (for the WhatsApp button)
 
   // Card (homepage showcase + reviews index)
   name: string;

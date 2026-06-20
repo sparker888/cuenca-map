@@ -67,6 +67,12 @@ export const UI: Record<Lang, Record<string, string>> = {
     o_sub_none_note: "no active subscription record.", o_sub_readonly: "(Read-only — managed by Cuenca Maps.)",
     o_sub_unavailable: "Subscription unavailable.",
     o_signin_failed: "Sign in failed.", o_google_unavailable: "Google sign-in is not available yet. Use email & password for now.",
+    // WhatsApp + directions (task 03)
+    wa_message: "Message on WhatsApp", wa_share: "Share", wa_claim: "Claim on WhatsApp",
+    dir_get: "Get directions", dir_apple: "Apple Maps", dir_google: "Google Maps",
+    wa_msg_text: "Hi! I found you on Cuenca Maps and wanted to get in touch.",
+    wa_claim_text: "Hi, I'd like to list/claim my business on Cuenca Maps.",
+    wa_share_text: "Check out {name} on Cuenca Maps: {url}",
   },
   es: {
     nav_map: "Mapa", nav_reviews: "Reseñas", nav_design: "Sistema de diseño", nav_about: "Acerca de", nav_list: "Publica tu negocio",
@@ -130,6 +136,12 @@ export const UI: Record<Lang, Record<string, string>> = {
     o_sub_none_note: "sin registro de suscripción activa.", o_sub_readonly: "(Solo lectura — gestionado por Cuenca Maps.)",
     o_sub_unavailable: "Suscripción no disponible.",
     o_signin_failed: "Error al iniciar sesión.", o_google_unavailable: "El inicio con Google aún no está disponible. Usa correo y contraseña por ahora.",
+    // WhatsApp + cómo llegar (tarea 03)
+    wa_message: "Mensaje por WhatsApp", wa_share: "Compartir", wa_claim: "Reclamar por WhatsApp",
+    dir_get: "Cómo llegar", dir_apple: "Apple Maps", dir_google: "Google Maps",
+    wa_msg_text: "¡Hola! Los encontré en Cuenca Maps y quería contactarlos.",
+    wa_claim_text: "Hola, me gustaría listar/reclamar mi negocio en Cuenca Maps.",
+    wa_share_text: "Mira {name} en Cuenca Maps: {url}",
   },
 };
 

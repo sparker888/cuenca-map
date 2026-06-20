@@ -39,6 +39,7 @@ export async function getPlaces(): Promise<Place[]> {
     illo: opt(b.illo),
     hours: Array.isArray(b.hours) && b.hours.length ? b.hours : undefined,
     phone: opt(b.phone),
+    whatsapp: opt(b.whatsapp),
     website: opt(b.website),
     reviewSlug: opt(b.reviewSlug),
   }));
@@ -49,6 +50,7 @@ function mapReview(r: any): Review {
     slug: r.slug,
     placeId: "", // not needed at render time; relation lives on the record
     businessSlug: r.expand?.business?.slug,
+    businessWhatsapp: r.expand?.business?.whatsapp || undefined,
     published: !!r.published,
     name: r.name,
     category: r.category,

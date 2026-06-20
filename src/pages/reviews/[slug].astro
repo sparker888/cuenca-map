@@ -6,6 +6,7 @@ import AndesBackdrop from "../../components/AndesBackdrop.astro";
 import Illustration from "../../components/Illustration.astro";
 import type { Review } from "../../data/reviews";
 import { getPublishedReviews } from "../../lib/content";
+import { geoUrl, appleMapsUrl, googleMapsUrl, waMessage, waShare } from "../../lib/links";
 
 export async function getStaticPaths() {
   const publishedReviews = await getPublishedReviews();
@@ -17,7 +18,16 @@ export async function getStaticPaths() {
 
 const { review } = Astro.props as { review: Review };
 const e = review.essentials!;
-const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.lng}`;
+// Directions: geo: (device default app) primary, with Apple + Google always present.
+const dirGeo = geoUrl(e.lat, e.lng, review.name);
+const dirApple = appleMapsUrl(e.lat, e.lng, review.name);
+const dirGoogle = googleMapsUrl(e.lat, e.lng);
+// Review articles are English long-form, so English prefill copy here.
+const waMsg = review.businessWhatsapp
+  ? waMessage(review.businessWhatsapp, "Hi! I found you on Cuenca Maps and wanted to get in touch.")
+  : null;
+const siteUrl = import.meta.env.PUBLIC_APP_URL || "";
+const waShareHref = waShare(`Check out ${review.name} on Cuenca Maps: ${siteUrl}/reviews/${review.slug}`);
 ---
 
 <Base title={`${review.name} — Review · Cuenca Expat Map`} description={review.dek}>
@@ -98,11 +108,21 @@ const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.
             <div><dt class="text-[11px] font-bold uppercase tracking-wide text-slate">Price</dt><dd class="mt-0.5 text-ink">{e.price}</dd></div>
           </dl>
 
-          <a href={dirUrl} target="_blank" rel="noopener" class="mt-6 block rounded-lg bg-gold px-4 py-3 text-center text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft">Get directions</a>
+          <a href={dirGeo} class="mt-6 block rounded-lg bg-gold px-4 py-3 text-center text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft">Get directions</a>
+          <div class="mt-2 flex items-center justify-center gap-3 text-[12.5px] font-semibold text-cobalt">
+            <a href={dirApple} target="_blank" rel="noopener" class="hover:underline">Apple Maps</a>
+            <span class="h-1 w-1 rounded-full bg-line"></span>
+            <a href={dirGoogle} target="_blank" rel="noopener" class="hover:underline">Google Maps</a>
+          </div>
+
+          {waMsg && <a href={waMsg} target="_blank" rel="noopener" class="mt-3 flex items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 py-3 text-center text-sm font-bold text-white transition hover:brightness-95">Message on WhatsApp</a>}
+
           <div class="mt-3 flex items-center justify-center gap-4 text-sm font-semibold text-cobalt">
             {e.website && <a href={e.website} target="_blank" rel="noopener" class="hover:underline">Website</a>}
             {e.website && e.phone && <span class="h-1 w-1 rounded-full bg-line"></span>}
             {e.phone && <a href={`tel:${e.phone.replace(/\s/g, "")}`} class="hover:underline">Call</a>}
+            <span class="h-1 w-1 rounded-full bg-line"></span>
+            <a href={waShareHref} target="_blank" rel="noopener" class="hover:underline">Share</a>
           </div>
 
           <div class="mt-6 overflow-hidden rounded-xl border border-line"><div class="aspect-[4/3]"><Illustration name={e.miniIllo} /></div></div>

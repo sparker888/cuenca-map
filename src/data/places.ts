@@ -38,6 +38,7 @@ export interface Place {
   illo?: IlloName; // illustrated placeholder shown in the listing
   hours?: string[];
   phone?: string;
+  whatsapp?: string; // digits only; powers the "Message on WhatsApp" button
   website?: string;
 
   // Set when a full write-up exists — the badge becomes a link to /reviews/<slug>.
