@@ -43,6 +43,14 @@ auth and on the public waitlist form.
 - Owner can sign in with Google or email/password.
 - Submitting the waitlist or auth without a valid Turnstile token is rejected server-side.
 
+## Addendum — link-only Google OAuth (done 2026-06-19)
+No public self-signup: `pocketbase/pb_hooks/oauth-link-only.pb.js` rejects any OAuth2 sign-in that
+would CREATE a new `users` record (`e.isNewRecord`) — only pre-created owners can link. PocketBase's
+Google provider only populates the verified email, so matching is on the verified address; unknown
+emails → new record → 403 "not an approved owner". Existing email/password login unaffected. Hook
+deployed and loads cleanly; full Google sign-in path remains untested until Google Cloud OAuth
+credentials are provided (see configure-oauth.mjs).
+
 ## Out of scope — WhatsApp login
 There is no "Sign in with WhatsApp" OAuth provider. The only real option is phone + OTP over the
 WhatsApp Business API (custom build) — deferred; not worth it for ~30 owners. Email + Google cover it.

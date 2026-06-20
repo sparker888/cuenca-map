@@ -136,7 +136,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
     "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-19 20:33:35.834Z",
+    "updated": "2026-06-20 01:01:42.920Z",
     "system": false
   },
   {
@@ -246,7 +246,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
     "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-19 20:33:36.078Z",
+    "updated": "2026-06-20 01:01:43.119Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -649,7 +649,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
     "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-19 20:33:36.295Z",
+    "updated": "2026-06-20 01:01:43.377Z",
     "system": false
   },
   {
@@ -1017,7 +1017,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
     "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-19 20:33:36.525Z",
+    "updated": "2026-06-20 01:01:43.634Z",
     "system": false
   },
   {
@@ -1130,7 +1130,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-19 20:33:36.734Z",
+    "updated": "2026-06-20 01:01:43.850Z",
     "system": false
   },
   {
@@ -1259,7 +1259,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-19 20:33:36.941Z",
+    "updated": "2026-06-20 01:01:44.059Z",
     "system": false
   },
   {
@@ -1395,7 +1395,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-19 20:33:37.183Z",
+    "updated": "2026-06-20 01:01:44.275Z",
     "system": false
   },
   {
@@ -1470,6 +1470,80 @@ migrate((app) => {
       {
         "help": "",
         "hidden": false,
+        "id": "select3317178062",
+        "maxSelect": 1,
+        "name": "period",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "annual",
+          "monthly",
+          "quarterly"
+        ]
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "number2392944706",
+        "max": null,
+        "min": null,
+        "name": "amount",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "text1767278655",
+        "max": 0,
+        "min": 0,
+        "name": "currency",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "select1582905952",
+        "maxSelect": 1,
+        "name": "method",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "deuna",
+          "transfer",
+          "cash",
+          "payphone",
+          "other"
+        ]
+      },
+      {
+        "help": "",
+        "hidden": false,
+        "id": "date1233552223",
+        "max": "",
+        "min": "",
+        "name": "paid_through",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "help": "",
+        "hidden": false,
         "id": "select2063623452",
         "maxSelect": 1,
         "name": "status",
@@ -1479,52 +1553,24 @@ migrate((app) => {
         "type": "select",
         "values": [
           "active",
-          "canceled",
-          "past_due",
-          "trialing"
+          "grace",
+          "lapsed"
         ]
       },
       {
         "autogeneratePattern": "",
         "help": "",
         "hidden": false,
-        "id": "text2462348188",
+        "id": "text18589324",
         "max": 0,
         "min": 0,
-        "name": "provider",
+        "name": "notes",
         "pattern": "",
         "presentable": false,
         "primaryKey": false,
         "required": false,
         "system": false,
         "type": "text"
-      },
-      {
-        "autogeneratePattern": "",
-        "help": "",
-        "hidden": false,
-        "id": "text2809179246",
-        "max": 0,
-        "min": 0,
-        "name": "externalId",
-        "pattern": "",
-        "presentable": false,
-        "primaryKey": false,
-        "required": false,
-        "system": false,
-        "type": "text"
-      },
-      {
-        "help": "",
-        "hidden": false,
-        "id": "date2201122646",
-        "max": "",
-        "min": "",
-        "name": "currentPeriodEnd",
-        "presentable": false,
-        "required": false,
-        "system": false,
-        "type": "date"
       },
       {
         "hidden": false,
@@ -1549,7 +1595,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-19 20:33:37.391Z",
+    "updated": "2026-06-20 01:01:44.482Z",
     "system": false
   }
 ];

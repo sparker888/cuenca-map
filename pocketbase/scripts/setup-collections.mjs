@@ -259,7 +259,9 @@ async function main() {
     ],
   });
 
-  // 8) subscriptions — owner reads own; admin/server writes
+  // 8) subscriptions — MANUAL payment model (no processor). Admin records real
+  // payments (DeUna / cash / transfer / payphone) in the PB admin UI; owners read
+  // their own row only. create/update/delete locked to superuser/admin.
   await upsert({
     name: "subscriptions",
     type: "base",
@@ -270,10 +272,13 @@ async function main() {
       rel("owner", "_pb_users_auth_", { required: true }),
       rel("business", businesses.id, {}),
       sel("tier", ["free", "enhanced", "premium"]),
-      sel("status", ["active", "canceled", "past_due", "trialing"]),
-      txt("provider"),
-      txt("externalId"),
-      date("currentPeriodEnd"),
+      sel("period", ["annual", "monthly", "quarterly"]),
+      num("amount"),
+      txt("currency"), // convention: "USD" (PocketBase has no field-level default)
+      sel("method", ["deuna", "transfer", "cash", "payphone", "other"]),
+      date("paid_through"),
+      sel("status", ["active", "grace", "lapsed"]),
+      txt("notes", { max: 0 }),
       created(), updated(),
     ],
   });

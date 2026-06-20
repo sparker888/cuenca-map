@@ -210,8 +210,9 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
       const el = document.getElementById("sub-body"); if (!el) return;
       if (!subs.length) { el.innerHTML = `${t("o_sub_tier")} <strong class="text-ink">${esc(b.tier)}</strong> · ${t("o_sub_none_note")} <span class="text-slate">${t("o_sub_readonly")}</span>`; return; }
       const s = subs[0];
-      const until = s.currentPeriodEnd ? new Date(s.currentPeriodEnd).toLocaleDateString() : "—";
-      el.innerHTML = `${t("o_sub_tier")} <strong class="text-ink">${esc(s.tier || b.tier)}</strong> · ${t("o_sub_status")} <strong class="text-ink">${esc(s.status || "—")}</strong> · ${t("o_sub_paid_through")} <strong class="text-ink">${esc(until)}</strong>. <span class="text-slate">${t("o_sub_readonly")}</span>`;
+      const until = s.paid_through ? new Date(s.paid_through).toLocaleDateString() : "—";
+      const pay = s.amount ? ` · ${esc(String(s.amount))} ${esc(s.currency || "USD")}${s.method ? ` (${esc(s.method)})` : ""}` : "";
+      el.innerHTML = `${t("o_sub_tier")} <strong class="text-ink">${esc(s.tier || b.tier)}</strong> · ${t("o_sub_status")} <strong class="text-ink">${esc(s.status || "—")}</strong> · ${t("o_sub_paid_through")} <strong class="text-ink">${esc(until)}</strong>${pay}. <span class="text-slate">${t("o_sub_readonly")}</span>`;
     } catch { const el = document.getElementById("sub-body"); if (el) el.textContent = t("o_sub_unavailable"); }
   }
 
