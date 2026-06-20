@@ -1,0 +1,92 @@
+[
+  {
+    "id": "atgapz2ch15nfrw",
+    "key": "landmark",
+    "label": "Landmarks & plazas",
+    "color": "#1e5fa8",
+    "sellable": false,
+    "cap": 0,
+    "order": 1
+  },
+  {
+    "id": "hqd3x4edkfpgwyi",
+    "key": "market",
+    "label": "Markets",
+    "color": "#c0533b",
+    "sellable": false,
+    "cap": 0,
+    "order": 2
+  },
+  {
+    "id": "xst8p87se14q482",
+    "key": "museum",
+    "label": "Museums & culture",
+    "color": "#c2922f",
+    "sellable": false,
+    "cap": 0,
+    "order": 3
+  },
+  {
+    "id": "5l8aou4h94bw2i6",
+    "key": "outdoors",
+    "label": "Parks & views",
+    "color": "#4e7a52",
+    "sellable": false,
+    "cap": 0,
+    "order": 4
+  },
+  {
+    "id": "7tt0zafev6nktl7",
+    "key": "restaurants-cafes",
+    "label": "Restaurants & cafés",
+    "color": "#8c3f5e",
+    "sellable": true,
+    "cap": 12,
+    "order": 5
+  },
+  {
+    "id": "0txc6cq5igkylna",
+    "key": "dental",
+    "label": "Dental",
+    "color": "#2f8f9d",
+    "sellable": true,
+    "cap": 3,
+    "order": 6
+  },
+  {
+    "id": "x5lot1wd794pktb",
+    "key": "real-estate",
+    "label": "Real estate",
+    "color": "#5b6b8c",
+    "sellable": true,
+    "cap": 3,
+    "order": 7
+  },
+  {
+    "id": "8rk6zlp47qd5f8k",
+    "key": "visa-legal",
+    "label": "Visa & legal",
+    "color": "#7a5cad",
+    "sellable": true,
+    "cap": 3,
+    "order": 8
+  },
+  {
+    "id": "x2r2899u622tjnv",
+    "key": "tours",
+    "label": "Tours",
+    "color": "#d98324",
+    "sellable": true,
+    "cap": 4,
+    "order": 9
+  },
+  {
+    "id": "0hbuav15ewk7oro",
+    "key": "bars",
+    "label": "Bars",
+    "color": "#b5476a",
+    "sellable": true,
+    "cap": 3,
+    "order": 10
+  }
+]
