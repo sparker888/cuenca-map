@@ -35,7 +35,8 @@ takedowns (Ecuador has criminal defamation law).
 - Owners scoped to `@request.auth.id`. Never expose draft/unpublished content publicly.
 
 ## Env vars (placement matters)
-- **Netlify:** `PUBLIC_APP_URL`, `PUBLIC_POCKETBASE_URL`, `POCKETBASE_URL` (URLs only).
+- **Netlify (public, build):** `PUBLIC_APP_URL`, `PUBLIC_POCKETBASE_URL`, `POCKETBASE_URL`,
+  `PUBLIC_TURNSTILE_SITE_KEY` (Turnstile widget), `PUBLIC_WHATSAPP_SALES` (sales click-to-chat number).
 - **fly secrets only — never Netlify/client:** `POCKETBASE_ADMIN_EMAIL`, `POCKETBASE_ADMIN_PASSWORD`,
   `NETLIFY_BUILD_HOOK_URL`, and the future Turnstile secret.
 - The admin password is re-applied from the `PB_ADMIN_PASSWORD` fly secret on every boot — rotate via
