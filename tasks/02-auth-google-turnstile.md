@@ -1,5 +1,12 @@
 # 02 — Auth: Google OAuth + Cloudflare Turnstile
-Status: Turnstile DONE & verified (2026-06-19); Google OAuth WIRED, pending Google creds · Priority: P0
+Status: DONE (2026-06-19) — Turnstile verified; Google OAuth enabled (provider live) · Priority: P0
+
+Google OAuth ENABLED 2026-06-19 via `pocketbase/scripts/configure-oauth.mjs` (creds from .env,
+stored in PB settings — not in the repo). Public auth-methods now lists the `google` provider with
+scopes email+profile; the SDK uses redirect `https://cuenca-map-production.fly.dev/api/oauth2-redirect`.
+Requires: that redirect URI authorized in the Google Cloud client, and the signing-in Google email
+pre-created as an owner (the oauth-link-only hook rejects unknown emails). Real end-to-end Google
+sign-in not self-tested (needs a real Google account); test with a pre-created real-email owner.
 
 Done:
 - Turnstile widget on owner login (`/owner`), waitlist (`/list-your-business`), and the
