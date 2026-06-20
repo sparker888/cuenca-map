@@ -19,7 +19,7 @@ export type Category =
   | "tours"
   | "bars";
 export type Tier = "free" | "enhanced" | "premium";
-export type IlloName = "dome" | "facade" | "market" | "terrace" | "river";
+export type IlloName = "dome" | "facade" | "market" | "terrace" | "river" | "pizza";
 
 export interface Place {
   id: string;

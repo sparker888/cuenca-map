@@ -9,7 +9,7 @@
 
 import { PB_URL as BASE, PB_ADMIN_EMAIL as EMAIL, PB_ADMIN_PASSWORD as PASSWORD } from "./_env.mjs";
 
-const ILLOS = ["dome", "facade", "market", "terrace", "river"];
+const ILLOS = ["dome", "facade", "market", "terrace", "river", "pizza"];
 
 let token = "";
 async function api(path, opts = {}) {

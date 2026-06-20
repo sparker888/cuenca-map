@@ -136,7 +136,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
     "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-20 01:01:42.920Z",
+    "updated": "2026-06-20 02:15:43.819Z",
     "system": false
   },
   {
@@ -246,7 +246,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
     "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-20 01:01:43.119Z",
+    "updated": "2026-06-20 02:15:44.041Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -258,14 +258,25 @@ migrate((app) => {
       }
     },
     "oauth2": {
-      "providers": [],
+      "providers": [
+        {
+          "pkce": null,
+          "name": "google",
+          "clientId": "1029318866509-pg43pg4l9omsstbou98gvss4eahp16lg.apps.googleusercontent.com",
+          "authURL": "",
+          "tokenURL": "",
+          "userInfoURL": "",
+          "displayName": "",
+          "extra": null
+        }
+      ],
       "mappedFields": {
         "id": "",
         "name": "",
         "username": "",
         "avatarURL": ""
       },
-      "enabled": false
+      "enabled": true
     },
     "passwordAuth": {
       "enabled": true,
@@ -512,7 +523,8 @@ migrate((app) => {
           "facade",
           "market",
           "terrace",
-          "river"
+          "river",
+          "pizza"
         ]
       },
       {
@@ -649,7 +661,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
     "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-20 01:01:43.377Z",
+    "updated": "2026-06-20 02:15:44.248Z",
     "system": false
   },
   {
@@ -784,7 +796,8 @@ migrate((app) => {
           "facade",
           "market",
           "terrace",
-          "river"
+          "river",
+          "pizza"
         ]
       },
       {
@@ -952,7 +965,8 @@ migrate((app) => {
           "facade",
           "market",
           "terrace",
-          "river"
+          "river",
+          "pizza"
         ]
       },
       {
@@ -1017,7 +1031,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
     "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-20 01:01:43.634Z",
+    "updated": "2026-06-20 02:15:44.504Z",
     "system": false
   },
   {
@@ -1130,7 +1144,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-20 01:01:43.850Z",
+    "updated": "2026-06-20 02:15:44.710Z",
     "system": false
   },
   {
@@ -1259,7 +1273,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-20 01:01:44.059Z",
+    "updated": "2026-06-20 02:15:44.921Z",
     "system": false
   },
   {
@@ -1395,7 +1409,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-20 01:01:44.275Z",
+    "updated": "2026-06-20 02:15:45.126Z",
     "system": false
   },
   {
@@ -1595,7 +1609,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-20 01:01:44.482Z",
+    "updated": "2026-06-20 02:15:45.335Z",
     "system": false
   }
 ];
