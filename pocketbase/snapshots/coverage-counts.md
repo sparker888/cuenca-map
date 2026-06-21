@@ -1,9 +1,10 @@
 # Cuenca coverage counts (OSM/Overpass, ODbL)
 
-bbox `-2.965,-79.075,-2.845,-78.945` (S,W,N,E). Ranking for the selection = OSM completeness (Google rating/reviews would
-refine this — needs an API key). Neighborhood spread via ~2km grid cells, round-robin.
+bbox `-2.965,-79.075,-2.845,-78.945` (S,W,N,E). Sellable discovery is quality-ranked + spread-capped; curated tourist
+categories are imported comprehensively. Ranking signal = OSM completeness (Google rating/reviews would
+refine — needs an API key).
 
-## Discovery — FULL comprehensive (backstop)
+## Sellable discovery — FULL comprehensive (backstop)
 | Category | Count |
 |---|---|
 | bars | 114 |
@@ -13,13 +14,22 @@ refine this — needs an API key). Neighborhood spread via ~2km grid cells, roun
 
 (fast_food/food_court counted above but excluded from the selection: 293)
 
-## Selected for draft import (tier=free, published=false)
+## Sellable discovery — selected for draft import
 | Category | Count |
 |---|---|
 | bars | 40 |
 | restaurants-cafes | 180 |
 | tours | 30 |
 | **Total** | **250** |
+
+## Curated tourist — imported comprehensively (sellable=false, uncapped)
+| Category | Count |
+|---|---|
+| landmark | 247 |
+| market | 45 |
+| museum | 49 |
+| outdoors | 192 |
+| **Total** | **533** |
 
 ## Service candidates (NOT published — Stephen vets)
 | Category | Count |

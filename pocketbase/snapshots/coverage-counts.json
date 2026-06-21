@@ -24,11 +24,21 @@
       "tours": 30
     }
   },
+  "curatedComprehensive": {
+    "byCategory": {
+      "landmark": 247,
+      "market": 45,
+      "museum": 49,
+      "outdoors": 192
+    },
+    "total": 533,
+    "note": "imported in full (sellable=false / uncapped)"
+  },
   "serviceCandidates": {
     "byCategory": {
       "dental": 91,
-      "visa-legal": 38,
-      "real-estate": 13
+      "real-estate": 13,
+      "visa-legal": 38
     },
     "total": 142
   }
