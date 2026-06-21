@@ -90,6 +90,7 @@ async function main() {
   const categories = (await pbList("categories", { sort: "order,key" })).map((c) => pick(c, CATEGORY_KEYS));
 
   const businesses = (await pbList("businesses", { sort: "slug", expand: "category" }))
+    .filter((b) => !b.osmId) // OSM-pull discovery drafts are reproducible via pull-coverage.mjs
     .map((b) => pick({ ...b, categoryKey: b.expand?.category?.key }, BUSINESS_KEYS))
     .sort((a, b) => a.slug.localeCompare(b.slug));
 
