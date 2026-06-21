@@ -38,6 +38,16 @@ const trimIdx = process.argv.indexOf("--trim");
 const TRIM = trimIdx !== -1 ? (process.argv[trimIdx + 1] || "") : null;
 const trimSpec = TRIM ? Object.fromEntries([TRIM.split("=").map((s) => s.trim())]) : {};
 
+// --category <key>  restrict ranking + trim to ONE curated category (thresholds differ per category).
+const catIdx = process.argv.indexOf("--category");
+const CATEGORY = catIdx !== -1 ? process.argv[catIdx + 1] : null;
+if (CATEGORY && !CURATED.includes(CATEGORY)) throw new Error(`--category must be one of ${CURATED.join("|")}`);
+
+// --protect "Name 1,Name 2"  exempt these names from deletion (e.g. node-mapped notables an area cut would drop).
+const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+const protIdx = process.argv.indexOf("--protect");
+const PROTECT = new Set(protIdx !== -1 ? (process.argv[protIdx + 1] || "").split(",").map((s) => norm(s)).filter(Boolean) : []);
+
 function polyAreaM2(geom) {
   if (!geom || geom.length < 3) return 0;
   const lat0 = (geom[0].lat * Math.PI) / 180;
@@ -115,10 +125,10 @@ async function main() {
   const drafts = [];
   for (let page = 1; ; page++) {
     const r = await api(`/api/collections/businesses/records?perPage=500&page=${page}&filter=${encodeURIComponent('published=false && osmId!=""')}`);
-    drafts.push(...r.items.filter((b) => CURATED.includes(catKey[b.category])));
+    drafts.push(...r.items.filter((b) => CURATED.includes(catKey[b.category]) && (!CATEGORY || catKey[b.category] === CATEGORY)));
     if (page >= r.totalPages) break;
   }
-  console.log(`curated drafts to rank: ${drafts.length}`);
+  console.log(`curated drafts to rank: ${drafts.length}${CATEGORY ? ` (category=${CATEGORY})` : ""}`);
 
   console.log("re-querying Overpass by osmId for tags + geometry…");
   const osm = await overpassByIds(drafts.map((d) => d.osmId));
@@ -134,6 +144,11 @@ async function main() {
   for (const key of CURATED) ranked[key].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
   // ---- report ----
+  // Only a full report-only run (re)writes the committed backstop. A --trim or
+  // --category run is a mutation/partial view and must not clobber it.
+  const writeReport = !TRIM && !CATEGORY;
+  if (!writeReport) console.log("(skipping report write — backstop from the full report-only run is preserved)");
+  if (writeReport) {
   fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(path.join(OUT, "curated-ranked.json"), JSON.stringify({
     note: "Prominence ranking of curated published=false osmId drafts. Highest = most notable; trim the tail.",
@@ -161,8 +176,10 @@ task 09; this report is the backstop. outdoors is ranked by polygon area; the re
 ${CURATED.map(section).join("\n")}`);
 
   console.log("report written: snapshots/curated-ranked.{json,md}");
+  }
   for (const key of CURATED) {
     const arr = ranked[key];
+    if (!arr.length) continue;
     const tail = arr.slice(-3).map((r) => `${r.name}(${r.score})`).join(", ");
     console.log(`  ${key.padEnd(10)} ${arr.length} — bottom: ${tail}`);
   }
@@ -185,6 +202,12 @@ ${CURATED.map(section).join("\n")}`);
     console.log(`\n--trim minArea=${X}: deleting outdoors parks < ${X} m² (other categories untouched).`);
   } else {
     throw new Error(`unrecognized --trim spec "${TRIM}". Use keep=N | minScore=X | minArea=X.`);
+  }
+
+  if (PROTECT.size) {
+    const before = toDelete.length;
+    toDelete = toDelete.filter((r) => !PROTECT.has(norm(r.name)));
+    console.log(`--protect: exempted ${before - toDelete.length} record(s) from deletion (${[...PROTECT].join(", ")}).`);
   }
 
   if (!toDelete.length) { console.log("nothing matched the trim — no deletions."); return; }
