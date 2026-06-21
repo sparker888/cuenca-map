@@ -1,0 +1,401 @@
+{
+  "generated": {
+    "seedsScanned": 20,
+    "osmRecordsScanned": 783,
+    "geoThresholdM": 300
+  },
+  "note": "Read-only. Each pair: a published no-osmId seed overlapping an osmId record. Resolve by hand.",
+  "matches": [
+    {
+      "kind": "GEO",
+      "distanceM": 2,
+      "seed": {
+        "id": "86kx0vm0u3ruz1d",
+        "name": "Parque Calderón",
+        "category": "landmark",
+        "published": true,
+        "slug": "parque-calderon",
+        "lat": -2.8974172,
+        "lng": -79.0044893
+      },
+      "osmDraft": {
+        "id": "lx2b65odto352w6",
+        "name": "Parque Abdón Calderón",
+        "category": "outdoors",
+        "published": false,
+        "slug": "parque-abdon-calderon-302980838",
+        "lat": -2.8974107,
+        "lng": -79.00447,
+        "osmId": "way/302980838"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 4,
+      "seed": {
+        "id": "wxuwl37d5qaj08f",
+        "name": "Plaza San Francisco",
+        "category": "market",
+        "published": true,
+        "slug": "plaza-san-francisco",
+        "lat": -2.8981662,
+        "lng": -79.0066167
+      },
+      "osmDraft": {
+        "id": "mpvhdpewqufqf8b",
+        "name": "Plaza de San Francisco",
+        "category": "landmark",
+        "published": false,
+        "slug": "plaza-de-san-francisco-14387893",
+        "lat": -2.8981739,
+        "lng": -79.0065782,
+        "osmId": "relation/14387893"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 7,
+      "seed": {
+        "id": "niugfanqqdjk2gi",
+        "name": "Museo del Sombrero (Toquilla Straw Hat)",
+        "category": "museum",
+        "published": true,
+        "slug": "museo-del-sombrero",
+        "lat": -2.9002731,
+        "lng": -79.0069204
+      },
+      "osmDraft": {
+        "id": "7ks7k9jbak5bqad",
+        "name": "Museo del Sombrero de Paja Toquilla (Panama Hat Museum)",
+        "category": "museum",
+        "published": false,
+        "slug": "museo-del-sombrero-de-paja-toquilla-panama-hat-m-4243162214",
+        "lat": -2.9003128,
+        "lng": -79.0068749,
+        "osmId": "node/4243162214"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 22,
+      "seed": {
+        "id": "sodfw80fk2i810i",
+        "name": "Parque San Sebastián",
+        "category": "landmark",
+        "published": true,
+        "slug": "parque-san-sebastian",
+        "lat": -2.8955963,
+        "lng": -79.0111583
+      },
+      "osmDraft": {
+        "id": "ciejnx2bpxg0nrb",
+        "name": "Parque de San Sebastián",
+        "category": "outdoors",
+        "published": false,
+        "slug": "parque-de-san-sebastian-48591689",
+        "lat": -2.895794,
+        "lng": -79.0111399,
+        "osmId": "way/48591689"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 82,
+      "seed": {
+        "id": "wxuwl37d5qaj08f",
+        "name": "Plaza San Francisco",
+        "category": "market",
+        "published": true,
+        "slug": "plaza-san-francisco",
+        "lat": -2.8981662,
+        "lng": -79.0066167
+      },
+      "osmDraft": {
+        "id": "r5i5nh13d8dhwsq",
+        "name": "San Francisco",
+        "category": "landmark",
+        "published": false,
+        "slug": "san-francisco-691490876",
+        "lat": -2.898905,
+        "lng": -79.006588,
+        "osmId": "way/691490876"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 102,
+      "seed": {
+        "id": "e1j6cq0mkf724et",
+        "name": "Plaza de las Flores",
+        "category": "landmark",
+        "published": true,
+        "slug": "plaza-de-las-flores",
+        "lat": -2.8976754,
+        "lng": -79.0058073
+      },
+      "osmDraft": {
+        "id": "mpvhdpewqufqf8b",
+        "name": "Plaza de San Francisco",
+        "category": "landmark",
+        "published": false,
+        "slug": "plaza-de-san-francisco-14387893",
+        "lat": -2.8981739,
+        "lng": -79.0065782,
+        "osmId": "relation/14387893"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 104,
+      "seed": {
+        "id": "wxuwl37d5qaj08f",
+        "name": "Plaza San Francisco",
+        "category": "market",
+        "published": true,
+        "slug": "plaza-san-francisco",
+        "lat": -2.8981662,
+        "lng": -79.0066167
+      },
+      "osmDraft": {
+        "id": "4eh2fcznsb0xpoc",
+        "name": "Plaza de las Flores",
+        "category": "landmark",
+        "published": false,
+        "slug": "plaza-de-las-flores-567060337",
+        "lat": -2.8976917,
+        "lng": -79.0058149,
+        "osmId": "way/567060337"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 163,
+      "seed": {
+        "id": "sodfw80fk2i810i",
+        "name": "Parque San Sebastián",
+        "category": "landmark",
+        "published": true,
+        "slug": "parque-san-sebastian",
+        "lat": -2.8955963,
+        "lng": -79.0111583
+      },
+      "osmDraft": {
+        "id": "a7xfqjxlu3286xq",
+        "name": "Parque de Los Arupos",
+        "category": "outdoors",
+        "published": false,
+        "slug": "parque-de-los-arupos-48597776",
+        "lat": -2.8966707,
+        "lng": -79.0121584,
+        "osmId": "way/48597776"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 165,
+      "seed": {
+        "id": "bh2no1krq6ng0x3",
+        "name": "Mercado 9 de Octubre",
+        "category": "market",
+        "published": true,
+        "slug": "mercado-9-de-octubre",
+        "lat": -2.8953853,
+        "lng": -79.0012254
+      },
+      "osmDraft": {
+        "id": "nuxv8emd5fwonon",
+        "name": "Mercado de Artesanías Rotary",
+        "category": "market",
+        "published": false,
+        "slug": "mercado-de-artesanias-rotary-48864704",
+        "lat": -2.8951038,
+        "lng": -78.9997634,
+        "osmId": "way/48864704"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 166,
+      "seed": {
+        "id": "26lu5r9pqiwhmwk",
+        "name": "Pumapungo Museum & Ruins",
+        "category": "museum",
+        "published": true,
+        "slug": "pumapungo",
+        "lat": -2.9060989,
+        "lng": -78.9968406
+      },
+      "osmDraft": {
+        "id": "10zk7c3q5is3izw",
+        "name": "Pumapungo Avery",
+        "category": "landmark",
+        "published": false,
+        "slug": "pumapungo-avery-4921095221",
+        "lat": -2.9072958,
+        "lng": -78.9977362,
+        "osmId": "node/4921095221"
+      }
+    },
+    {
+      "kind": "GEO",
+      "distanceM": 168,
+      "seed": {
+        "id": "26lu5r9pqiwhmwk",
+        "name": "Pumapungo Museum & Ruins",
+        "category": "museum",
+        "published": true,
+        "slug": "pumapungo",
+        "lat": -2.9060989,
+        "lng": -78.9968406
+      },
+      "osmDraft": {
+        "id": "m9sn7ebl4fphiqv",
+        "name": "\" Pumapungo\"  Cafeteria Restaurant",
+        "category": "restaurants-cafes",
+        "published": true,
+        "slug": "pumapungo-cafeteria-restaurant-1245413231",
+        "lat": -2.9051075,
+        "lng": -78.9979767,
+        "osmId": "way/1245413231"
+      }
+    },
+    {
+      "kind": "NAME",
+      "distanceM": 1,
+      "seed": {
+        "id": "bh2no1krq6ng0x3",
+        "name": "Mercado 9 de Octubre",
+        "category": "market",
+        "published": true,
+        "slug": "mercado-9-de-octubre",
+        "lat": -2.8953853,
+        "lng": -79.0012254
+      },
+      "osmDraft": {
+        "id": "sg6tzmu3dp9gvck",
+        "name": "Mercado 9 de Octubre",
+        "category": "market",
+        "published": false,
+        "slug": "mercado-9-de-octubre-48864715",
+        "lat": -2.8953847,
+        "lng": -79.0012374,
+        "osmId": "way/48864715"
+      }
+    },
+    {
+      "kind": "NAME",
+      "distanceM": 2,
+      "seed": {
+        "id": "e1j6cq0mkf724et",
+        "name": "Plaza de las Flores",
+        "category": "landmark",
+        "published": true,
+        "slug": "plaza-de-las-flores",
+        "lat": -2.8976754,
+        "lng": -79.0058073
+      },
+      "osmDraft": {
+        "id": "4eh2fcznsb0xpoc",
+        "name": "Plaza de las Flores",
+        "category": "landmark",
+        "published": false,
+        "slug": "plaza-de-las-flores-567060337",
+        "lat": -2.8976917,
+        "lng": -79.0058149,
+        "osmId": "way/567060337"
+      }
+    },
+    {
+      "kind": "NAME",
+      "distanceM": 8,
+      "seed": {
+        "id": "fz07ck355kib64k",
+        "name": "Mirador de Turi",
+        "category": "outdoors",
+        "published": true,
+        "slug": "mirador-de-turi",
+        "lat": -2.9223661,
+        "lng": -79.0101307
+      },
+      "osmDraft": {
+        "id": "f5qcwybfd4u05gx",
+        "name": "Mirador de Turi",
+        "category": "landmark",
+        "published": false,
+        "slug": "mirador-de-turi-747791819",
+        "lat": -2.9223185,
+        "lng": -79.0100709,
+        "osmId": "node/747791819"
+      }
+    },
+    {
+      "kind": "NAME",
+      "distanceM": 12,
+      "seed": {
+        "id": "7m7crtf9pvrlizp",
+        "name": "Mercado 10 de Agosto",
+        "category": "market",
+        "published": true,
+        "slug": "mercado-10-de-agosto",
+        "lat": -2.8991483,
+        "lng": -79.007599
+      },
+      "osmDraft": {
+        "id": "onneqjgm4n3z038",
+        "name": "Mercado 10 de Agosto",
+        "category": "market",
+        "published": false,
+        "slug": "mercado-10-de-agosto-396016810",
+        "lat": -2.8992438,
+        "lng": -79.007559,
+        "osmId": "way/396016810"
+      }
+    },
+    {
+      "kind": "NAME",
+      "distanceM": 57,
+      "seed": {
+        "id": "fu1f3xuzi6pwnsx",
+        "name": "Parque de la Madre",
+        "category": "outdoors",
+        "published": true,
+        "slug": "parque-de-la-madre",
+        "lat": -2.9045589,
+        "lng": -79.0031415
+      },
+      "osmDraft": {
+        "id": "4pbrmy30hypfa2t",
+        "name": "Parque de La Madre",
+        "category": "outdoors",
+        "published": false,
+        "slug": "parque-de-la-madre-48597754",
+        "lat": -2.9044012,
+        "lng": -79.0036329,
+        "osmId": "way/48597754"
+      }
+    },
+    {
+      "kind": "NAME",
+      "distanceM": 187,
+      "seed": {
+        "id": "r36g0vnu2xzmvyg",
+        "name": "Parque El Paraíso",
+        "category": "outdoors",
+        "published": true,
+        "slug": "parque-el-paraiso",
+        "lat": -2.9114837,
+        "lng": -78.9894478
+      },
+      "osmDraft": {
+        "id": "ifzsizptnnjhdtq",
+        "name": "Parque El Paraíso",
+        "category": "outdoors",
+        "published": false,
+        "slug": "parque-el-paraiso-48597345",
+        "lat": -2.9105574,
+        "lng": -78.9880381,
+        "osmId": "way/48597345"
+      }
+    }
+  ]
+}
