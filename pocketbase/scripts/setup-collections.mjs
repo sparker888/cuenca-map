@@ -155,6 +155,7 @@ async function main() {
       txt("whatsapp"), // click-to-chat number (task 03); owner-editable
       url("website"),
       txt("reviewSlug"),
+      txt("osmId"), // OpenStreetMap element id for coverage-pull dedup/upsert (task 07)
       bool("published"),
       rel("owner", "_pb_users_auth_", {}),
       // Premium-only menu PDF, owner-uploaded via the portal.

@@ -136,7 +136,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
     "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-20 14:36:06.988Z",
+    "updated": "2026-06-21 17:01:28.077Z",
     "system": false
   },
   {
@@ -246,7 +246,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
     "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-20 14:36:07.203Z",
+    "updated": "2026-06-21 17:01:28.184Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -594,6 +594,21 @@ migrate((app) => {
         "type": "text"
       },
       {
+        "autogeneratePattern": "",
+        "help": "",
+        "hidden": false,
+        "id": "text2409697677",
+        "max": 0,
+        "min": 0,
+        "name": "osmId",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
         "help": "",
         "hidden": false,
         "id": "bool1748787223",
@@ -659,7 +674,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
     "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-20 14:36:07.408Z",
+    "updated": "2026-06-21 17:01:28.302Z",
     "system": false
   },
   {
@@ -1027,7 +1042,7 @@ migrate((app) => {
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
     "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-20 14:36:07.621Z",
+    "updated": "2026-06-21 17:01:28.429Z",
     "system": false
   },
   {
@@ -1140,7 +1155,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-20 14:36:07.849Z",
+    "updated": "2026-06-21 17:01:28.540Z",
     "system": false
   },
   {
@@ -1269,7 +1284,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-20 14:36:08.063Z",
+    "updated": "2026-06-21 17:01:28.654Z",
     "system": false
   },
   {
@@ -1405,7 +1420,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-20 14:36:08.264Z",
+    "updated": "2026-06-21 17:01:28.759Z",
     "system": false
   },
   {
@@ -1605,7 +1620,7 @@ migrate((app) => {
     ],
     "indexes": [],
     "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-20 14:36:08.473Z",
+    "updated": "2026-06-21 17:01:28.860Z",
     "system": false
   }
 ];

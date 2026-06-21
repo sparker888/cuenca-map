@@ -1,0 +1,20 @@
+{
+  "source": "OpenStreetMap via Overpass (ODbL)",
+  "bbox": "-2.965,-79.075,-2.845,-78.945",
+  "discovery": {
+    "byCategory": {
+      "bars": 114,
+      "restaurants-cafes": 1531,
+      "tours": 60
+    },
+    "total": 1705
+  },
+  "serviceCandidates": {
+    "byCategory": {
+      "dental": 91,
+      "real-estate": 13,
+      "visa-legal": 38
+    },
+    "total": 142
+  }
+}
