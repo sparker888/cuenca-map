@@ -1,19 +1,34 @@
 {
   "source": "OpenStreetMap via Overpass (ODbL)",
   "bbox": "-2.965,-79.075,-2.845,-78.945",
-  "discovery": {
+  "discoveryFull": {
     "byCategory": {
-      "bars": 114,
       "restaurants-cafes": 1531,
+      "bars": 114,
       "tours": 60
     },
-    "total": 1705
+    "total": 1705,
+    "lowSignalExcludedFromSelection": 293
+  },
+  "selectedForImport": {
+    "byCategory": {
+      "bars": 40,
+      "restaurants-cafes": 180,
+      "tours": 30
+    },
+    "total": 250,
+    "ranking": "OSM completeness + neighborhood spread",
+    "targets": {
+      "restaurants-cafes": 180,
+      "bars": 40,
+      "tours": 30
+    }
   },
   "serviceCandidates": {
     "byCategory": {
       "dental": 91,
-      "real-estate": 13,
-      "visa-legal": 38
+      "visa-legal": 38,
+      "real-estate": 13
     },
     "total": 142
   }

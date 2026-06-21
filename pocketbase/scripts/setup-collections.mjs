@@ -131,10 +131,10 @@ async function main() {
   const businesses = await upsert({
     name: "businesses",
     type: "base",
-    listRule: 'published = true || owner = @request.auth.id || @request.auth.role = "admin"',
-    viewRule: 'published = true || owner = @request.auth.id || @request.auth.role = "admin"',
+    listRule: 'published = true || (@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
+    viewRule: 'published = true || (@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
     createRule: '@request.auth.role = "admin"',
-    updateRule: 'owner = @request.auth.id || @request.auth.role = "admin"',
+    updateRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
     deleteRule: '@request.auth.role = "admin"',
     fields: [
       txt("slug", { required: true, presentable: true }),
@@ -208,11 +208,11 @@ async function main() {
   await upsert({
     name: "media",
     type: "base",
-    listRule: 'business.published = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
-    viewRule: 'business.published = true || business.owner = @request.auth.id || @request.auth.role = "admin"',
-    createRule: '@request.auth.role = "admin" || business.owner = @request.auth.id',
-    updateRule: '@request.auth.role = "admin" || business.owner = @request.auth.id',
-    deleteRule: '@request.auth.role = "admin" || business.owner = @request.auth.id',
+    listRule: 'business.published = true || (@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
+    viewRule: 'business.published = true || (@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
+    createRule: '@request.auth.role = "admin" || (@request.auth.id != "" && business.owner = @request.auth.id)',
+    updateRule: '@request.auth.role = "admin" || (@request.auth.id != "" && business.owner = @request.auth.id)',
+    deleteRule: '@request.auth.role = "admin" || (@request.auth.id != "" && business.owner = @request.auth.id)',
     fields: [
       rel("business", businesses.id, { required: true }),
       { name: "image", type: "file", maxSelect: 1, maxSize: 5242880,
@@ -228,11 +228,11 @@ async function main() {
   await upsert({
     name: "events_specials",
     type: "base",
-    listRule: '(active = true && business.published = true) || business.owner = @request.auth.id || @request.auth.role = "admin"',
-    viewRule: '(active = true && business.published = true) || business.owner = @request.auth.id || @request.auth.role = "admin"',
-    createRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
-    updateRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
-    deleteRule: 'business.owner = @request.auth.id || @request.auth.role = "admin"',
+    listRule: '(active = true && business.published = true) || (@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
+    viewRule: '(active = true && business.published = true) || (@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
+    createRule: '(@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
+    updateRule: '(@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
+    deleteRule: '(@request.auth.id != "" && business.owner = @request.auth.id) || @request.auth.role = "admin"',
     fields: [
       rel("business", businesses.id, { required: true }),
       txt("title", { required: true }),
@@ -268,8 +268,8 @@ async function main() {
   await upsert({
     name: "subscriptions",
     type: "base",
-    listRule: 'owner = @request.auth.id || @request.auth.role = "admin"',
-    viewRule: 'owner = @request.auth.id || @request.auth.role = "admin"',
+    listRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
+    viewRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
     createRule: null, updateRule: null, deleteRule: null,
     fields: [
       rel("owner", "_pb_users_auth_", { required: true }),

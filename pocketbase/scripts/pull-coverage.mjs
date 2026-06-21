@@ -1,20 +1,30 @@
 // Coverage seed + prospect list — OSM/Overpass pull.
 // ---------------------------------------------------------------------------
 // Pulls Cuenca POIs from OpenStreetMap (ODbL, openly licensed — safe to persist
-// and publish on our own map). Normalizes to our taxonomy, dedups by OSM id, and
-// writes:
-//   - pocketbase/snapshots/coverage-counts.{json,md}  (per-category counts)
-//   - pocketbase/snapshots/service-candidates.json    (services — vetting list, NOT imported)
+// and publish on our own map). Normalizes to our taxonomy, dedups by OSM id.
 //
-// With --import: upserts DISCOVERY records (restaurants-cafes / bars / tours) into
-// `businesses` as tier=free, published=false (draft), basic fields only, idempotent
-// by osmId. Stephen reviews and flips `published`; nothing auto-goes-live.
+// Writes (committed):
+//   - coverage-counts.{json,md}  — FULL comprehensive counts (backstop) + the
+//     quality-ranked SELECTION counts.
+//   - service-candidates.json    — services (dental/real-estate/visa-legal),
+//     vetting list only, NOT imported.
+//   - coverage-selected.json     — the curated discovery set chosen for import
+//     (the import manifest / prospect subset).
 //
-// Google Places is intentionally NOT used: it needs an API key and its terms
-// forbid persisting/publishing Places content on a competing map. OSM only.
+// SELECTION (per the coverage decision): quality-rank by OSM completeness
+// (maintained-tag richness) — Google rating/reviews would refine this but needs an
+// API key (future). Then spread across neighborhood grid cells (round-robin) and
+// take ~TARGETS per category. fast_food/food_court are counted (backstop) but
+// excluded from the selection (low signal).
+//
+// With --import: upserts the SELECTED discovery into `businesses` as tier=free,
+// published=false (draft), basic fields only, idempotent by osmId. Stephen reviews
+// and publishes; nothing auto-goes-live. Services are never imported.
+//
+// Google Places omitted (key + terms forbid publishing on a competing map). OSM only.
 //
 //   node scripts/pull-coverage.mjs            # pull + write reports (no DB writes)
-//   node scripts/pull-coverage.mjs --import   # also import discovery drafts
+//   node scripts/pull-coverage.mjs --import   # also import the selected discovery drafts
 
 import fs from "node:fs";
 import path from "node:path";
@@ -24,27 +34,38 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(here, "..", "snapshots");
 const DO_IMPORT = process.argv.includes("--import");
 
-// S,W,N,E — matches the map's maxBounds so we only pull within the product area.
-const BBOX = "-2.965,-79.075,-2.845,-78.945";
+const BBOX = "-2.965,-79.075,-2.845,-78.945"; // S,W,N,E — matches the map's maxBounds
 const OVERPASS = "https://overpass-api.de/api/interpreter";
 
-// amenity/shop value -> our category
 const DISCOVERY = {
-  restaurant: "restaurants-cafes", cafe: "restaurants-cafes", fast_food: "restaurants-cafes", food_court: "restaurants-cafes",
+  restaurant: "restaurants-cafes", cafe: "restaurants-cafes",
+  fast_food: "restaurants-cafes", food_court: "restaurants-cafes", // counted but low-signal
   bar: "bars", pub: "bars", nightclub: "bars", biergarten: "bars",
 };
+const LOW_SIGNAL = new Set(["fast_food", "food_court"]);
 const SERVICE = { dentist: "dental", estate_agent: "real-estate", lawyer: "visa-legal" };
+
+// curated targets for the draft import (spread + quality)
+const TARGETS = { "restaurants-cafes": 180, bars: 40, tours: 30 };
+// grid cell ~0.02° (~2.2 km) for neighborhood spread
+const CELL = 0.02;
+// OSM tags that signal a real, maintained listing (completeness score)
+const QUALITY = {
+  website: 2, "contact:website": 2, phone: 2, "contact:phone": 2,
+  opening_hours: 1, cuisine: 1, "addr:street": 1, "addr:housenumber": 1,
+  email: 1, "contact:email": 1, stars: 1, wheelchair: 1, outdoor_seating: 1, description: 1,
+};
 
 function classify(t) {
   const a = t.amenity;
-  if (a && DISCOVERY[a]) return { kind: "discovery", category: DISCOVERY[a] };
-  if (t.shop === "travel_agency") return { kind: "discovery", category: "tours" };
+  if (a && DISCOVERY[a]) return { kind: "discovery", category: DISCOVERY[a], lowSignal: LOW_SIGNAL.has(a) };
+  if (t.shop === "travel_agency") return { kind: "discovery", category: "tours", lowSignal: false };
   if (a === "dentist" || t.healthcare === "dentist") return { kind: "service", category: "dental" };
   if (t.office === "estate_agent") return { kind: "service", category: "real-estate" };
   if (t.office === "lawyer") return { kind: "service", category: "visa-legal" };
   return null;
 }
-
+const scoreTags = (t) => Object.entries(QUALITY).reduce((s, [k, w]) => (t[k] ? s + w : s), 0);
 const slugify = (s) =>
   s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
@@ -58,19 +79,17 @@ const OVERPASS_Q = `[out:json][timeout:120];(
 
 async function pullOSM() {
   const res = await fetch(OVERPASS, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: "data=" + encodeURIComponent(OVERPASS_Q),
   });
   if (!res.ok) throw new Error(`Overpass ${res.status}: ${await res.text()}`);
   const els = (await res.json()).elements;
 
-  const discovery = [], service = [];
-  const seen = new Set();
+  const discovery = [], service = [], seen = new Set();
   for (const e of els) {
     const t = e.tags || {};
     const name = (t.name || "").trim();
-    if (!name) continue; // need a name to be a usable pin/prospect
+    if (!name) continue;
     const cls = classify(t);
     if (!cls) continue;
     const lat = e.lat ?? e.center?.lat, lng = e.lon ?? e.center?.lon;
@@ -78,66 +97,103 @@ async function pullOSM() {
     const osmId = `${e.type}/${e.id}`;
     if (seen.has(osmId)) continue;
     seen.add(osmId);
-    const address = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ").trim();
     const rec = {
-      osmId, name, category: cls.category, address,
+      osmId, name, category: cls.category,
+      address: [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ").trim(),
       lat: +(+lat).toFixed(7), lng: +(+lng).toFixed(7),
       phone: t.phone || t["contact:phone"] || "",
       website: t.website || t["contact:website"] || "",
       slug: slugify(name) ? `${slugify(name)}-${e.id}` : `osm-${e.type}-${e.id}`,
+      score: scoreTags(t),
     };
-    (cls.kind === "discovery" ? discovery : service).push(rec);
+    if (cls.kind === "discovery") { rec.lowSignal = !!cls.lowSignal; discovery.push(rec); }
+    else service.push(rec);
   }
-  discovery.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
-  service.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
   return { discovery, service };
 }
 
-function countBy(arr) {
-  const c = {};
-  for (const r of arr) c[r.category] = (c[r.category] || 0) + 1;
-  return c;
+// quality-rank + neighborhood-spread (round-robin across grid cells) up to target
+function selectSpread(records, target) {
+  const cells = new Map();
+  for (const r of records) {
+    const key = `${Math.floor(r.lat / CELL)},${Math.floor(r.lng / CELL)}`;
+    (cells.get(key) || cells.set(key, []).get(key)).push(r);
+  }
+  for (const arr of cells.values()) arr.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+  const cellArrs = [...cells.values()];
+  const picked = [];
+  let progress = true;
+  while (picked.length < target && progress) {
+    progress = false;
+    for (const arr of cellArrs) {
+      if (arr.length) { picked.push(arr.shift()); progress = true; if (picked.length >= target) break; }
+    }
+  }
+  return picked;
 }
 
-function writeReports({ discovery, service }) {
+function countBy(arr) { const c = {}; for (const r of arr) c[r.category] = (c[r.category] || 0) + 1; return c; }
+
+function select(discovery) {
+  const out = [];
+  for (const [cat, target] of Object.entries(TARGETS)) {
+    const pool = discovery.filter((r) => r.category === cat && !r.lowSignal);
+    out.push(...selectSpread(pool, target));
+  }
+  out.sort((a, b) => a.category.localeCompare(b.category) || b.score - a.score || a.name.localeCompare(b.name));
+  return out;
+}
+
+function writeReports(discovery, service, selected) {
   fs.mkdirSync(OUT, { recursive: true });
-  const dCounts = countBy(discovery), sCounts = countBy(service);
-  const counts = {
-    source: "OpenStreetMap via Overpass (ODbL)",
-    bbox: BBOX,
-    discovery: { byCategory: dCounts, total: discovery.length },
-    serviceCandidates: { byCategory: sCounts, total: service.length },
-  };
-  fs.writeFileSync(path.join(OUT, "coverage-counts.json"), JSON.stringify(counts, null, 2) + "\n");
+  const full = countBy(discovery), sel = countBy(selected), svc = countBy(service);
+  const lowSignal = discovery.filter((r) => r.lowSignal).length;
 
-  const row = (o) => Object.entries(o).sort().map(([k, v]) => `| ${k} | ${v} |`).join("\n");
-  const md = `# Cuenca coverage counts (OSM/Overpass, ODbL)
+  fs.writeFileSync(path.join(OUT, "coverage-counts.json"), JSON.stringify({
+    source: "OpenStreetMap via Overpass (ODbL)", bbox: BBOX,
+    discoveryFull: { byCategory: full, total: discovery.length, lowSignalExcludedFromSelection: lowSignal },
+    selectedForImport: { byCategory: sel, total: selected.length, ranking: "OSM completeness + neighborhood spread", targets: TARGETS },
+    serviceCandidates: { byCategory: svc, total: service.length },
+  }, null, 2) + "\n");
 
-bbox \`${BBOX}\` (S,W,N,E). Discovery = published-as-draft free pins; services = vetting candidates only.
+  const rows = (o) => Object.entries(o).sort().map(([k, v]) => `| ${k} | ${v} |`).join("\n");
+  fs.writeFileSync(path.join(OUT, "coverage-counts.md"), `# Cuenca coverage counts (OSM/Overpass, ODbL)
 
-## Discovery (import as draft free pins)
+bbox \`${BBOX}\` (S,W,N,E). Ranking for the selection = OSM completeness (Google rating/reviews would
+refine this — needs an API key). Neighborhood spread via ~2km grid cells, round-robin.
+
+## Discovery — FULL comprehensive (backstop)
 | Category | Count |
 |---|---|
-${row(dCounts)}
+${rows(full)}
 | **Total** | **${discovery.length}** |
+
+(fast_food/food_court counted above but excluded from the selection: ${lowSignal})
+
+## Selected for draft import (tier=free, published=false)
+| Category | Count |
+|---|---|
+${rows(sel)}
+| **Total** | **${selected.length}** |
 
 ## Service candidates (NOT published — Stephen vets)
 | Category | Count |
 |---|---|
-${row(sCounts)}
+${rows(svc)}
 | **Total** | **${service.length}** |
-`;
-  fs.writeFileSync(path.join(OUT, "coverage-counts.md"), md);
+`);
 
-  // service candidates keep contact info for vetting (OSM-licensed, no PII)
-  fs.writeFileSync(path.join(OUT, "service-candidates.json"), JSON.stringify(service, null, 2) + "\n");
+  const strip = ({ lowSignal, ...r }) => r;
+  fs.writeFileSync(path.join(OUT, "coverage-selected.json"), JSON.stringify(selected.map(strip), null, 2) + "\n");
+  fs.writeFileSync(path.join(OUT, "service-candidates.json"), JSON.stringify(service.map(strip), null, 2) + "\n");
 
-  console.log("wrote coverage-counts.json / .md, service-candidates.json");
-  console.log("  discovery:", dCounts, "→ total", discovery.length);
-  console.log("  services :", sCounts, "→ total", service.length);
+  console.log("reports written.");
+  console.log("  discovery full:", full, "→", discovery.length, `(low-signal ${lowSignal})`);
+  console.log("  selected      :", sel, "→", selected.length);
+  console.log("  services      :", svc, "→", service.length);
 }
 
-async function importDiscovery(discovery) {
+async function importDiscovery(selected) {
   const { PB_URL: BASE, PB_ADMIN_EMAIL: EMAIL, PB_ADMIN_PASSWORD: PASSWORD } = await import("./_env.mjs");
   let token = "";
   const api = async (p, opts = {}) => {
@@ -150,31 +206,25 @@ async function importDiscovery(discovery) {
   const catId = {};
   for (const c of (await api("/api/collections/categories/records?perPage=200")).items) catId[c.key] = c.id;
 
-  let created = 0, updated = 0, skipped = 0;
-  for (const r of discovery) {
-    const cat = catId[r.category];
-    if (!cat) { skipped++; continue; }
-    // basic fields only (free pins are basic) — phone/website kept out of the record
-    const data = { slug: r.slug, name: r.name, category: cat, lat: r.lat, lng: r.lng, address: r.address, tier: "free", published: false, osmId: r.osmId };
+  let created = 0, updated = 0;
+  for (const r of selected) {
+    const data = { slug: r.slug, name: r.name, category: catId[r.category], lat: r.lat, lng: r.lng, address: r.address, tier: "free", published: false, osmId: r.osmId };
     const f = encodeURIComponent(`osmId="${r.osmId}"`);
     const existing = (await api(`/api/collections/businesses/records?perPage=1&filter=${f}`)).items[0];
     if (existing) { await api(`/api/collections/businesses/records/${existing.id}`, { method: "PATCH", body: JSON.stringify(data) }); updated++; }
     else { await api("/api/collections/businesses/records", { method: "POST", body: JSON.stringify(data) }); created++; }
-    if ((created + updated) % 100 === 0) console.log(`  …${created + updated} imported`);
+    if ((created + updated) % 50 === 0) console.log(`  …${created + updated}/${selected.length}`);
   }
-  console.log(`import: ${created} created, ${updated} updated, ${skipped} skipped (drafts, published=false)`);
+  console.log(`import: ${created} created, ${updated} updated (drafts, published=false)`);
 }
 
 async function main() {
   console.log("pulling OSM/Overpass…");
-  const data = await pullOSM();
-  writeReports(data);
-  if (DO_IMPORT) {
-    console.log("\nimporting discovery as drafts…");
-    await importDiscovery(data.discovery);
-  } else {
-    console.log("\n(reports only — re-run with --import to load discovery drafts)");
-  }
+  const { discovery, service } = await pullOSM();
+  const selected = select(discovery);
+  writeReports(discovery, service, selected);
+  if (DO_IMPORT) { console.log("\nimporting selected discovery as drafts…"); await importDiscovery(selected); }
+  else console.log("\n(reports only — re-run with --import to load the selected discovery drafts)");
 }
 
 main().catch((e) => { console.error("\n✗ FAILED:\n" + e.message); process.exit(1); });
