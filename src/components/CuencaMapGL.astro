@@ -140,15 +140,18 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
   map.on("styledata", recolorBasemap);
 
   // ---- Markers ----
+  // Featured = a gold star, independent of category. starred = premium OR reviewed
+  // (any place with a published review). All starred pins render identically; the
+  // rest are the standard category-colored dot. Star and quota are separate signals.
+  const isStarred = (p: Place) => p.tier === "premium" || !!p.reviewed;
   function markerEl(p: Place) {
-    const color = categoryMeta[p.category].color;
-    // 3-step hierarchy: free (small) < enhanced (gold rim) < premium (gold + star).
-    const isPrem = p.tier === "premium", isEnh = p.tier === "enhanced";
-    const size = isPrem ? 32 : isEnh ? 27 : 22;
+    const starred = isStarred(p);
+    const size = starred ? 30 : 22;
+    const bg = starred ? "#d6a53c" : categoryMeta[p.category].color;
     const el = document.createElement("div");
-    el.className = isPrem ? "cm-pin cm-pin--premium" : isEnh ? "cm-pin cm-pin--enhanced" : "cm-pin";
+    el.className = starred ? "cm-pin cm-pin--starred" : "cm-pin";
     el.style.cssText = `width:${size}px;height:${size}px;cursor:pointer;`;
-    el.innerHTML = `<span class="cm-pin__dot" style="background:${color}">${isPrem ? '<span class="cm-pin__star">★</span>' : ""}</span>`;
+    el.innerHTML = `<span class="cm-pin__dot" style="background:${bg}">${starred ? '<span class="cm-pin__star">★</span>' : ""}</span>`;
     el.addEventListener("click", (e) => { e.stopPropagation(); select(p.id); });
     return el;
   }
@@ -220,9 +223,13 @@ const cmData = JSON.stringify({ places, categoryMeta: presentMeta }).replace(/</
     const shareUrl = waShare(
       t("wa_share_text").replace("{name}", p.name).replace("{url}", location.origin + (p.reviewSlug ? "/reviews/" + p.reviewSlug : "/"))
     );
+    // Reviewed → link to the review. Featured-but-not-yet-reviewed (premium in the
+    // review queue) → no link. Only genuine free, unstarred prospects see "claim".
     const reviewBtn = p.reviewSlug
       ? `<a href="/reviews/${p.reviewSlug}" class="mt-4 flex items-center justify-between rounded-xl border border-gold/40 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold-soft transition hover:bg-gold/20">★ ${t("panel_review")} <span>→</span></a>`
-      : `<a href="/list-your-business" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`;
+      : (!isStarred(p) && p.tier === "free")
+        ? `<a href="/list-your-business" class="mt-4 block border-t border-white/10 pt-3.5 text-[13px] text-[#7fb0e6]">${t("panel_claim")}</a>`
+        : "";
     panel.innerHTML = `
       <button data-close class="absolute right-3.5 top-3 text-xl leading-none text-white/60 hover:text-white">×</button>
       ${featured ? `<div class="mb-4 -mx-1 overflow-hidden rounded-xl">${illoFor(p.id)}</div>` : ""}

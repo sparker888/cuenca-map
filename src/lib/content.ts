@@ -22,8 +22,17 @@ export async function getCategoryMeta(): Promise<CategoryMeta> {
 }
 
 export async function getPlaces(): Promise<Place[]> {
-  // Public rule already limits this to published businesses.
-  const rows = await pbList<any>("businesses", { expand: "category", sort: "created" });
+  // Public rule already limits this to published businesses. Reviews are loaded
+  // once here so each place can carry a `reviewed` flag (a published review links
+  // to it) — used by the map's gold-star treatment. Coming-soon teasers
+  // (published=false) intentionally do NOT count as reviewed.
+  const [rows, reviews] = await Promise.all([
+    pbList<any>("businesses", { expand: "category", sort: "created" }),
+    getReviews(),
+  ]);
+  const pub = reviews.filter((r) => r.published);
+  const reviewedReviewSlugs = new Set(pub.map((r) => r.slug));
+  const reviewedBizSlugs = new Set(pub.map((r) => r.businessSlug).filter(Boolean));
   return rows.map((b) => ({
     id: b.slug,
     name: b.name,
@@ -43,6 +52,7 @@ export async function getPlaces(): Promise<Place[]> {
     whatsapp: opt(b.whatsapp),
     website: opt(b.website),
     reviewSlug: opt(b.reviewSlug),
+    reviewed: reviewedBizSlugs.has(b.slug) || (!!b.reviewSlug && reviewedReviewSlugs.has(b.reviewSlug)),
   }));
 }
 
@@ -92,34 +102,50 @@ export interface CategorySlot {
   label: string;
   color: string;
   cap: number;
-  used: number;
+  filled: number; // PAID listings (enhanced/premium) — the only thing a cap counts
   remaining: number;
+  full: boolean;
+  base: number; // all published businesses in the category — scarcity context
 }
 
-// Sales inventory: ONLY sellable (paid) categories — cap vs. count of published
-// businesses — for the "X of N slots remaining" display on /list-your-business.
+// Sales inventory: ONLY sellable (paid) categories — cap vs. count of PAID
+// (enhanced/premium) listings — for the "X of N open" display on /list-your-business.
+// `filled` (the quota signal) counts paid tiers only, so the free curated/discovery
+// base never eats a slot; `base` is the all-tiers published count, shown as context.
 // Curated/tourist categories (sellable=false) are intentionally excluded.
 export async function getInventory(): Promise<CategorySlot[]> {
-  const [cats, biz] = await Promise.all([
+  const [cats, paid, published] = await Promise.all([
     pbList<any>("categories", { sort: "order", filter: "sellable = true" }),
-    pbList<any>("businesses", { expand: "category" }),
+    pbList<any>("businesses", {
+      filter: 'published = true && (tier = "enhanced" || tier = "premium")',
+      expand: "category",
+    }),
+    pbList<any>("businesses", { filter: "published = true", expand: "category" }),
   ]);
-  const counts: Record<string, number> = {};
-  for (const b of biz) {
-    const k = b.expand?.category?.key;
-    if (k) counts[k] = (counts[k] ?? 0) + 1;
-  }
+  const countByCat = (rows: any[]) => {
+    const m: Record<string, number> = {};
+    for (const b of rows) {
+      const k = b.expand?.category?.key;
+      if (k) m[k] = (m[k] ?? 0) + 1;
+    }
+    return m;
+  };
+  const filledByCat = countByCat(paid);
+  const baseByCat = countByCat(published);
   return cats.map((c) => {
     const cap = c.cap ?? 0;
-    const used = counts[c.key] ?? 0;
+    const filled = filledByCat[c.key] ?? 0;
+    const remaining = Math.max(0, cap - filled);
     return {
       id: c.id,
       key: c.key as Category,
       label: c.label,
       color: c.color,
       cap,
-      used,
-      remaining: Math.max(0, cap - used),
+      filled,
+      remaining,
+      full: remaining <= 0,
+      base: baseByCat[c.key] ?? 0,
     };
   });
 }

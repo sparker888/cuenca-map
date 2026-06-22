@@ -45,6 +45,11 @@ export interface Place {
 
   // Set when a full write-up exists — the badge becomes a link to /reviews/<slug>.
   reviewSlug?: string;
+
+  // True when a PUBLISHED review links to this place (via reviewSlug or the
+  // business relation). Drives the gold "featured" star independently of tier.
+  // Coming-soon teasers do not count. Computed in getPlaces().
+  reviewed?: boolean;
 }
 
 // Label + color per category. Shape kept here; values now come from PocketBase

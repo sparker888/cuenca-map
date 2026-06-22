@@ -121,10 +121,20 @@
 .cm-pin--enhanced .cm-pin__dot {
   border-color: #d6a53c;
 }
+/* Starred (featured): premium OR a published review — one identical gold star,
+   independent of category color. */
+.cm-pin--starred .cm-pin__dot {
+  border-color: #d6a53c;
+  box-shadow: 0 0 0 3px rgba(214, 165, 60, 0.4), 0 3px 9px rgba(0, 0, 0, 0.6);
+}
 .cm-pin__star {
   color: #fff;
   font-size: 0.8rem;
   line-height: 1;
+}
+/* Dark star reads on the gold starred fill (matches the legend swatch). */
+.cm-pin--starred .cm-pin__star {
+  color: #3a2a08;
 }
 .cm-pin:hover .cm-pin__dot {
   transform: scale(1.18);
