@@ -98,7 +98,15 @@ const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
   async function boot() {
     show("dash-loading", true); show("dash-login", false); show("dash-body", false);
     if (pb.authStore.isValid) {
-      try { await enter(); return; } catch { pb.authStore.clear(); }
+      try {
+        // Refresh the record from the server so a role changed server-side (e.g.
+        // owner → admin/sales) is picked up immediately, not read from a stale
+        // cached session. Without this the gate could bounce a freshly-promoted
+        // user on their old cached role.
+        await pb.collection("users").authRefresh();
+        await enter();
+        return;
+      } catch { pb.authStore.clear(); }
     }
     show("dash-loading", false); show("dash-login", true);
   }
