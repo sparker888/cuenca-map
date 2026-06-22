@@ -135,8 +135,8 @@ migrate((app) => {
     "indexes": [
       "CREATE UNIQUE INDEX idx_categories_key ON categories (key)"
     ],
-    "created": "2026-06-19 13:20:42.125Z",
-    "updated": "2026-06-21 18:23:09.281Z",
+    "created": "2026-06-22 20:52:49.432Z",
+    "updated": "2026-06-22 20:52:49.432Z",
     "system": false
   },
   {
@@ -237,7 +237,8 @@ migrate((app) => {
         "type": "select",
         "values": [
           "admin",
-          "owner"
+          "owner",
+          "sales"
         ]
       }
     ],
@@ -245,8 +246,8 @@ migrate((app) => {
       "CREATE UNIQUE INDEX `idx_tokenKey__pb_users_auth_` ON `users` (`tokenKey`)",
       "CREATE UNIQUE INDEX `idx_email__pb_users_auth_` ON `users` (`email`) WHERE `email` != ''"
     ],
-    "created": "2026-06-19 02:37:02.829Z",
-    "updated": "2026-06-21 18:23:09.389Z",
+    "created": "2026-06-22 20:52:32.742Z",
+    "updated": "2026-06-22 20:52:49.441Z",
     "system": false,
     "authRule": "",
     "manageRule": null,
@@ -311,8 +312,8 @@ migrate((app) => {
   },
   {
     "id": "pbc_3548013948",
-    "listRule": "published = true || (@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\"",
-    "viewRule": "published = true || (@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\"",
+    "listRule": "published = true || (@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\" || @request.auth.role = \"sales\"",
+    "viewRule": "published = true || (@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\" || @request.auth.role = \"sales\"",
     "createRule": "@request.auth.role = \"admin\"",
     "updateRule": "(@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\"",
     "deleteRule": "@request.auth.role = \"admin\"",
@@ -673,8 +674,8 @@ migrate((app) => {
     "indexes": [
       "CREATE UNIQUE INDEX idx_businesses_slug ON businesses (slug)"
     ],
-    "created": "2026-06-19 13:20:42.597Z",
-    "updated": "2026-06-21 18:23:09.494Z",
+    "created": "2026-06-22 20:52:49.453Z",
+    "updated": "2026-06-22 20:52:49.453Z",
     "system": false
   },
   {
@@ -1041,8 +1042,8 @@ migrate((app) => {
     "indexes": [
       "CREATE UNIQUE INDEX idx_reviews_slug ON reviews (slug)"
     ],
-    "created": "2026-06-19 13:20:42.813Z",
-    "updated": "2026-06-21 18:23:09.603Z",
+    "created": "2026-06-22 20:52:49.460Z",
+    "updated": "2026-06-22 20:52:49.460Z",
     "system": false
   },
   {
@@ -1154,8 +1155,8 @@ migrate((app) => {
       }
     ],
     "indexes": [],
-    "created": "2026-06-19 13:20:43.018Z",
-    "updated": "2026-06-21 18:23:09.721Z",
+    "created": "2026-06-22 20:52:49.470Z",
+    "updated": "2026-06-22 20:52:49.470Z",
     "system": false
   },
   {
@@ -1283,14 +1284,14 @@ migrate((app) => {
       }
     ],
     "indexes": [],
-    "created": "2026-06-19 13:20:43.223Z",
-    "updated": "2026-06-21 18:23:09.832Z",
+    "created": "2026-06-22 20:52:49.476Z",
+    "updated": "2026-06-22 20:52:49.476Z",
     "system": false
   },
   {
     "id": "pbc_3705076665",
-    "listRule": null,
-    "viewRule": null,
+    "listRule": "@request.auth.role = \"admin\" || @request.auth.role = \"sales\"",
+    "viewRule": "@request.auth.role = \"admin\" || @request.auth.role = \"sales\"",
     "createRule": "",
     "updateRule": null,
     "deleteRule": null,
@@ -1419,14 +1420,14 @@ migrate((app) => {
       }
     ],
     "indexes": [],
-    "created": "2026-06-19 13:20:43.425Z",
-    "updated": "2026-06-21 18:23:09.940Z",
+    "created": "2026-06-22 20:52:49.481Z",
+    "updated": "2026-06-22 20:52:49.481Z",
     "system": false
   },
   {
     "id": "pbc_3980638064",
-    "listRule": "(@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\"",
-    "viewRule": "(@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\"",
+    "listRule": "(@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\" || @request.auth.role = \"sales\"",
+    "viewRule": "(@request.auth.id != \"\" && owner = @request.auth.id) || @request.auth.role = \"admin\" || @request.auth.role = \"sales\"",
     "createRule": null,
     "updateRule": null,
     "deleteRule": null,
@@ -1619,8 +1620,8 @@ migrate((app) => {
       }
     ],
     "indexes": [],
-    "created": "2026-06-19 13:20:43.628Z",
-    "updated": "2026-06-21 18:23:10.043Z",
+    "created": "2026-06-22 20:52:49.488Z",
+    "updated": "2026-06-22 20:52:49.488Z",
     "system": false
   }
 ];

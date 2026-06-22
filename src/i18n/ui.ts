@@ -44,7 +44,7 @@ export const UI: Record<Lang, Record<string, string>> = {
     wl_title: "Join the waitlist", wl_dek: "Tell us about your place and which category you're in. We'll reach out as a featured slot opens up.",
     wl_cat: "Category", wl_send: "Join the waitlist", wl_thanks: "You're on the list — we'll be in touch soon.",
     // Owner portal (/owner)
-    o_eyebrow: "For business owners", o_title: "Owner portal",
+    o_eyebrow: "For business owners", o_title: "My Business Settings",
     o_signin: "Sign in", o_signin_sub: "Manage your listing, specials, and photos.",
     o_email: "Email", o_password: "Password", o_or: "or", o_google: "Sign in with Google",
     o_signed_as: "Signed in as", o_signout: "Sign out", o_loading: "Loading…",
@@ -113,7 +113,7 @@ export const UI: Record<Lang, Record<string, string>> = {
     wl_title: "Únete a la lista de espera", wl_dek: "Cuéntanos sobre tu lugar y en qué categoría estás. Te contactaremos cuando se abra un cupo destacado.",
     wl_cat: "Categoría", wl_send: "Unirme a la lista", wl_thanks: "Estás en la lista — te escribiremos pronto.",
     // Portal del propietario (/owner)
-    o_eyebrow: "Para negocios", o_title: "Portal del propietario",
+    o_eyebrow: "Para negocios", o_title: "Configuración de mi negocio",
     o_signin: "Iniciar sesión", o_signin_sub: "Administra tu ficha, especiales y fotos.",
     o_email: "Correo", o_password: "Contraseña", o_or: "o", o_google: "Iniciar sesión con Google",
     o_signed_as: "Sesión iniciada como", o_signout: "Cerrar sesión", o_loading: "Cargando…",

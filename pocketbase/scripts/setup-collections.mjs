@@ -124,15 +124,15 @@ async function main() {
   await upsert({
     name: "users",
     type: "auth",
-    fields: [ sel("role", ["admin", "owner"], { required: false }) ],
+    fields: [ sel("role", ["admin", "owner", "sales"], { required: false }) ],
   });
 
   // 3) businesses — public sees published; owners/admin see + edit their own
   const businesses = await upsert({
     name: "businesses",
     type: "base",
-    listRule: 'published = true || (@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
-    viewRule: 'published = true || (@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
+    listRule: 'published = true || (@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin" || @request.auth.role = "sales"',
+    viewRule: 'published = true || (@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin" || @request.auth.role = "sales"',
     createRule: '@request.auth.role = "admin"',
     updateRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
     deleteRule: '@request.auth.role = "admin"',
@@ -244,11 +244,13 @@ async function main() {
     ],
   });
 
-  // 7) leads — public CREATE only, never publicly readable
+  // 7) leads — public CREATE only, never publicly readable. admin/sales may read
+  // the whole inbox (dashboard leads inbox + convert-to-sale); still no public read.
   await upsert({
     name: "leads",
     type: "base",
-    listRule: null, viewRule: null,
+    listRule: '@request.auth.role = "admin" || @request.auth.role = "sales"',
+    viewRule: '@request.auth.role = "admin" || @request.auth.role = "sales"',
     createRule: "",
     updateRule: null, deleteRule: null,
     fields: [
@@ -268,8 +270,8 @@ async function main() {
   await upsert({
     name: "subscriptions",
     type: "base",
-    listRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
-    viewRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin"',
+    listRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin" || @request.auth.role = "sales"',
+    viewRule: '(@request.auth.id != "" && owner = @request.auth.id) || @request.auth.role = "admin" || @request.auth.role = "sales"',
     createRule: null, updateRule: null, deleteRule: null,
     fields: [
       rel("owner", "_pb_users_auth_", { required: true }),

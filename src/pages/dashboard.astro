@@ -1,0 +1,504 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+// Operations dashboard — Phase 1 (sales role). Fully client-rendered and
+// authenticated, same pattern as /owner: no build-time PocketBase data, the
+// browser logs in and reads/writes through collection rules + the record-sale
+// route. Role is enforced SERVER-SIDE (rules + route); the UI only hides what a
+// role can't reach. Architected so an `admin` superset slots onto this same page
+// later (review authoring, deletes, field edits) — see screens keyed by role.
+const inputCls =
+  "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
+const TURNSTILE_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+---
+
+<Base title="Operations — Cuenca Maps" description="Cuenca Maps operations dashboard.">
+  <Nav />
+
+  <section class="mx-auto max-w-[1100px] px-6 py-12 sm:py-16">
+    <p class="eyebrow text-[11px] font-bold uppercase text-cinnabar">Cuenca Maps internal</p>
+    <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight text-indigo sm:text-[2.4rem]">Operations</h1>
+
+    <!-- LOGIN -->
+    <div id="dash-login" class="mt-8 hidden max-w-[420px] rounded-2xl border border-line bg-paper p-7 shadow-[0_24px_50px_-30px_rgba(20,35,59,.35)]">
+      <h2 class="font-display text-xl font-semibold text-indigo">Sign in</h2>
+      <p class="mt-1 text-[14px] text-slate">Sales &amp; admin only.</p>
+      <form id="login-form" class="mt-5 grid gap-4">
+        <label class="block"><span class="text-[12px] font-bold uppercase tracking-wide text-slate">Email</span>
+          <input type="email" name="email" required class={inputCls} autocomplete="email" /></label>
+        <label class="block"><span class="text-[12px] font-bold uppercase tracking-wide text-slate">Password</span>
+          <input type="password" name="password" required class={inputCls} autocomplete="current-password" /></label>
+        {TURNSTILE_SITE_KEY && <div class="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-theme="light"></div>}
+        <button type="submit" class="rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft">Sign in</button>
+      </form>
+      <button id="google-signin" class="mt-4 flex w-full items-center justify-center gap-2.5 rounded-lg border border-line bg-paper px-5 py-3 text-sm font-semibold text-ink transition hover:bg-marble">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+        Sign in with Google</button>
+      <p id="login-error" class="mt-4 hidden text-sm font-semibold text-cinnabar"></p>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dash-body" class="mt-8 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="text-[14px] text-slate">Signed in as <span id="dash-email" class="font-semibold text-ink"></span>
+          <span id="dash-role" class="ml-2 rounded-full bg-cobalt/10 px-2 py-0.5 text-[11px] font-bold uppercase text-cobalt"></span></p>
+        <button id="logout" class="text-sm font-semibold text-cobalt hover:underline">Sign out</button>
+      </div>
+
+      <!-- tab bar -->
+      <div id="tabs" class="mt-6 flex flex-wrap gap-1 border-b border-line">
+        <button data-tab="pipeline" class="dash-tab -mb-px border-b-2 border-cobalt px-4 py-2.5 text-sm font-bold text-cobalt">Pipeline</button>
+        <button data-tab="sale" class="dash-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold text-slate hover:text-ink">Record a sale</button>
+        <button data-tab="listings" class="dash-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold text-slate hover:text-ink">Listings</button>
+        <button data-tab="leads" class="dash-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold text-slate hover:text-ink">Leads</button>
+      </div>
+
+      <div id="panel-pipeline" class="dash-panel mt-6"></div>
+      <div id="panel-sale" class="dash-panel mt-6 hidden"></div>
+      <div id="panel-listings" class="dash-panel mt-6 hidden"></div>
+      <div id="panel-leads" class="dash-panel mt-6 hidden"></div>
+    </div>
+
+    <div id="dash-loading" class="mt-8 text-sm text-slate">Loading…</div>
+  </section>
+
+  {TURNSTILE_SITE_KEY && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+
+  <Footer />
+</Base>
+
+<script>
+  import { pb } from "../lib/pb-client";
+  import maplibregl from "maplibre-gl";
+  import "maplibre-gl/dist/maplibre-gl.css";
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const esc = (s: any = "") => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
+  const show = (id: string, on = true) => $(id).classList.toggle("hidden", !on);
+  const INPUT = "mt-1.5 w-full rounded-lg border border-line bg-marble/40 px-3.5 py-2.5 text-sm text-ink outline-none transition focus:border-cobalt focus:bg-paper";
+  const LABEL = "text-[12px] font-bold uppercase tracking-wide text-slate";
+  const BTN = "rounded-lg bg-gold px-5 py-3 text-sm font-bold text-[#3a2a08] transition hover:bg-gold-soft disabled:opacity-50";
+  const CARD = "rounded-2xl border border-line bg-paper p-6";
+  const PAID = ["enhanced", "premium"];
+  const TIER_DEFAULT_AMOUNT: Record<string, number> = { enhanced: 180, premium: 399 };
+
+  // ---- shared data (loaded once per dashboard render) ----
+  let me: any = null;
+  let categories: any[] = [];   // all categories
+  let businesses: any[] = [];   // all businesses (sales/admin can read every row)
+  let reviews: any[] = [];      // published reviews (for review-status / queue)
+  let subscriptions: any[] = [];
+  let leads: any[] = [];
+
+  function roleOf(u: any): string { return u?.role || ""; }
+
+  // ---- boot / auth gate ----
+  async function boot() {
+    show("dash-loading", true); show("dash-login", false); show("dash-body", false);
+    if (pb.authStore.isValid) {
+      try { await enter(); return; } catch { pb.authStore.clear(); }
+    }
+    show("dash-loading", false); show("dash-login", true);
+  }
+
+  // Decide what to do with a logged-in user: admin/sales → dashboard; owner →
+  // bounce to /owner; anything else → home. Role is also enforced server-side.
+  async function enter() {
+    const u = pb.authStore.record as any;
+    const role = roleOf(u);
+    if (role === "owner") { location.href = "/owner"; return; }
+    if (role !== "admin" && role !== "sales") { location.href = "/"; return; }
+    me = u;
+    await loadAll();
+    $("dash-email").textContent = u.email || "";
+    $("dash-role").textContent = role;
+    show("dash-loading", false); show("dash-login", false); show("dash-body", true);
+    renderPipeline();
+  }
+
+  ($("login-form") as HTMLFormElement).addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target as HTMLFormElement);
+    const err = $("login-error"); err.classList.add("hidden");
+    const token = String(fd.get("cf-turnstile-response") || "");
+    try {
+      await pb.collection("users").authWithPassword(String(fd.get("email")), String(fd.get("password")),
+        token ? { headers: { "X-Turnstile-Token": token } } : {});
+      await enter();
+    } catch (ex: any) { err.textContent = ex?.message || "Sign in failed."; err.classList.remove("hidden"); }
+  });
+  $("google-signin").addEventListener("click", async () => {
+    const err = $("login-error"); err.classList.add("hidden");
+    try { await pb.collection("users").authWithOAuth2({ provider: "google" }); await enter(); }
+    catch (ex: any) { err.textContent = ex?.message || "Google sign-in unavailable."; err.classList.remove("hidden"); }
+  });
+  $("logout").addEventListener("click", () => { pb.authStore.clear(); location.reload(); });
+
+  async function loadAll() {
+    [categories, businesses, reviews, subscriptions, leads] = await Promise.all([
+      pb.collection("categories").getFullList({ sort: "order" }),
+      pb.collection("businesses").getFullList({ sort: "name", expand: "category" }),
+      pb.collection("reviews").getFullList({ filter: "published = true" }).catch(() => []),
+      pb.collection("subscriptions").getFullList({ sort: "-created" }).catch(() => []),
+      pb.collection("leads").getFullList({ sort: "-created", expand: "category,business" }).catch(() => []),
+    ]);
+  }
+
+  // A business is "reviewed" if a published review points at it (by relation or slug).
+  const reviewedBizIds = () => {
+    const byId = new Set(reviews.map((r) => r.business).filter(Boolean));
+    const slugs = new Set(reviews.map((r) => r.slug));
+    const s = new Set<string>(byId);
+    for (const b of businesses) if (b.reviewSlug && slugs.has(b.reviewSlug)) s.add(b.id);
+    return s;
+  };
+  const catKey = (b: any) => b.expand?.category?.key || "";
+  const catLabel = (b: any) => b.expand?.category?.label || catKey(b) || "—";
+
+  // ===== TABS =====
+  document.querySelectorAll<HTMLButtonElement>(".dash-tab").forEach((btn) => btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab!;
+    document.querySelectorAll<HTMLButtonElement>(".dash-tab").forEach((b) => {
+      const on = b === btn;
+      b.classList.toggle("border-cobalt", on); b.classList.toggle("text-cobalt", on); b.classList.toggle("font-bold", on);
+      b.classList.toggle("border-transparent", !on); b.classList.toggle("text-slate", !on); b.classList.toggle("font-semibold", !on);
+    });
+    document.querySelectorAll<HTMLElement>(".dash-panel").forEach((p) => p.classList.add("hidden"));
+    show(`panel-${tab}`, true);
+    if (tab === "pipeline") renderPipeline();
+    if (tab === "sale") renderSale();
+    if (tab === "listings") renderListings();
+    if (tab === "leads") renderLeads();
+  }));
+  function switchTab(tab: string) { (document.querySelector(`.dash-tab[data-tab="${tab}"]`) as HTMLButtonElement)?.click(); }
+
+  // ===== PIPELINE =====
+  function renderPipeline() {
+    const reviewed = reviewedBizIds();
+    const published = businesses.filter((b) => b.published);
+    // open slots per sellable category — paid (enhanced/premium) count vs cap (Task 13 logic)
+    const sellable = categories.filter((c) => c.sellable);
+    const slotRows = sellable.map((c) => {
+      const filled = published.filter((b) => catKey(b) === c.key && PAID.includes(b.tier)).length;
+      const cap = c.cap ?? 0;
+      const remaining = Math.max(0, cap - filled);
+      return { label: c.label, cap, filled, remaining };
+    });
+    const openTotal = slotRows.reduce((n, r) => n + r.remaining, 0);
+
+    const reviewQueue = published.filter((b) => b.tier === "premium" && !reviewed.has(b.id));
+    const today = new Date(); const soon = new Date(); soon.setDate(soon.getDate() + 30);
+    const renewals = subscriptions.filter((s) => {
+      if (s.status === "lapsed" || !s.paid_through) return false;
+      const d = new Date(s.paid_through); return d >= today && d <= soon;
+    }).sort((a, b) => +new Date(a.paid_through) - +new Date(b.paid_through));
+
+    const stat = (n: number | string, label: string, tab?: string, tone = "text-indigo") =>
+      `<button ${tab ? `data-goto="${tab}"` : ""} class="${CARD} text-left ${tab ? "transition hover:border-cobalt hover:shadow-[0_18px_40px_-28px_rgba(20,35,59,.4)]" : ""}">
+        <p class="font-display text-4xl font-semibold ${tone}">${n}</p>
+        <p class="mt-1 text-[13px] font-semibold text-slate">${label}</p></button>`;
+
+    $("panel-pipeline").innerHTML = `
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        ${stat(openTotal, "Open paid slots", "sale", openTotal > 0 ? "text-green" : "text-cinnabar")}
+        ${stat(reviewQueue.length, "Premium awaiting a review", "listings", reviewQueue.length ? "text-cinnabar" : "text-indigo")}
+        ${stat(renewals.length, "Renewals within 30 days")}
+        ${stat(leads.length, "Leads in the inbox", "leads", leads.length ? "text-cobalt" : "text-indigo")}
+      </div>
+
+      <div class="mt-6 grid gap-6 lg:grid-cols-2">
+        <div class="${CARD}">
+          <h3 class="font-display text-lg font-semibold text-indigo">Inventory — open slots</h3>
+          <p class="mt-1 text-[12px] text-slate">Paid listings vs cap. Scarcity is the product.</p>
+          <div class="mt-4 grid gap-2.5">
+            ${slotRows.map((r) => `
+              <div>
+                <div class="flex items-baseline justify-between text-sm"><span class="font-semibold text-ink">${esc(r.label)}</span>
+                  <span class="${r.remaining ? "text-green" : "text-cinnabar"} font-bold">${r.remaining} of ${r.cap} open</span></div>
+                <div class="mt-1 h-1.5 overflow-hidden rounded-full bg-marble"><div class="h-full rounded-full ${r.remaining ? "bg-gold" : "bg-cinnabar"}" style="width:${r.cap ? Math.round((r.filled / r.cap) * 100) : 0}%"></div></div>
+              </div>`).join("")}
+          </div>
+        </div>
+
+        <div class="${CARD}">
+          <h3 class="font-display text-lg font-semibold text-indigo">Renewals approaching</h3>
+          <p class="mt-1 text-[12px] text-slate">Subscriptions paid through the next 30 days.</p>
+          <div class="mt-4 grid gap-2 text-sm">
+            ${renewals.length ? renewals.map((s) => {
+              const b = businesses.find((x) => x.id === s.business);
+              return `<div class="flex items-center justify-between rounded-lg border border-line px-3 py-2">
+                <span class="font-semibold text-ink">${esc(b?.name || "—")}</span>
+                <span class="text-slate">${esc(s.tier || "")} · ${esc(new Date(s.paid_through).toLocaleDateString())}</span></div>`;
+            }).join("") : `<p class="text-slate">Nothing due soon.</p>`}
+          </div>
+          <h3 class="mt-6 font-display text-lg font-semibold text-indigo">Review queue</h3>
+          <p class="mt-1 text-[12px] text-slate">Premium listings with no published review yet.</p>
+          <div class="mt-3 grid gap-2 text-sm">
+            ${reviewQueue.length ? reviewQueue.map((b) => `<div class="flex items-center justify-between rounded-lg border border-line px-3 py-2">
+              <span class="font-semibold text-ink">${esc(b.name)}</span><span class="text-slate">${esc(catLabel(b))}</span></div>`).join("")
+              : `<p class="text-slate">All premium listings are reviewed. 🎉</p>`}
+          </div>
+        </div>
+      </div>`;
+
+    $("panel-pipeline").querySelectorAll<HTMLButtonElement>("[data-goto]").forEach((b) =>
+      b.addEventListener("click", () => switchTab(b.dataset.goto!)));
+  }
+
+  // ===== RECORD A SALE =====
+  let picker: any = null;           // maplibre map instance for the new-business picker
+  let pickerMarker: any = null;
+  const yearFromNow = () => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString().slice(0, 10); };
+
+  function renderSale(prefill: any = {}) {
+    picker = null; pickerMarker = null;
+    const freeBiz = businesses.filter((b) => b.tier === "free").sort((a, b) => a.name.localeCompare(b.name));
+    const sellable = categories.filter((c) => c.sellable);
+    const mode = prefill.mode || (prefill.businessId ? "existing" : "existing");
+
+    $("panel-sale").innerHTML = `
+      <div class="${CARD} max-w-[720px]">
+        <h3 class="font-display text-xl font-semibold text-indigo">Record a sale</h3>
+        <p class="mt-1 text-[13px] text-slate">Atomic: it creates/links the owner account, sets the tier, and writes the subscription in one step.</p>
+
+        <div class="mt-5 inline-flex rounded-lg border border-line p-0.5 text-sm">
+          <button id="mode-existing" class="rounded-md px-3.5 py-1.5 font-semibold ${mode === "existing" ? "bg-cobalt text-white" : "text-slate"}">Upgrade existing listing</button>
+          <button id="mode-new" class="rounded-md px-3.5 py-1.5 font-semibold ${mode === "new" ? "bg-cobalt text-white" : "text-slate"}">New business</button>
+        </div>
+
+        <form id="sale-form" class="mt-5 grid gap-4">
+          <!-- EXISTING -->
+          <div id="sec-existing" class="${mode === "existing" ? "" : "hidden"} grid gap-4">
+            <label class="block"><span class="${LABEL}">Free listing to upgrade</span>
+              <select name="businessId" class="${INPUT}">
+                <option value="">— select a free listing —</option>
+                ${freeBiz.map((b) => `<option value="${b.id}" ${prefill.businessId === b.id ? "selected" : ""}>${esc(b.name)} · ${esc(b.expand?.category?.label || "")}</option>`).join("")}
+              </select>
+              <span class="mt-1 block text-[12px] text-slate">Only free pins are upgradeable. A paid listing is rejected by the server.</span></label>
+          </div>
+
+          <!-- NEW -->
+          <div id="sec-new" class="${mode === "new" ? "" : "hidden"} grid gap-4">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block"><span class="${LABEL}">Business name</span><input name="name" value="${esc(prefill.name || "")}" class="${INPUT}" /></label>
+              <label class="block"><span class="${LABEL}">Category</span><select name="category" class="${INPUT}">
+                ${sellable.map((c) => `<option value="${c.id}" ${prefill.category === c.id ? "selected" : ""}>${esc(c.label)}</option>`).join("")}</select></label>
+            </div>
+            <label class="block"><span class="${LABEL}">Address (optional)</span><input name="address" value="${esc(prefill.address || "")}" class="${INPUT}" /></label>
+            <div>
+              <span class="${LABEL}">Location — click the map to drop the pin</span>
+              <div id="pick-map" class="mt-1.5 h-[260px] w-full overflow-hidden rounded-lg border border-line"></div>
+              <p class="mt-1 text-[12px] text-slate">Picked: <span id="pick-readout" class="font-semibold text-ink">none</span></p>
+              <input type="hidden" name="lat" /><input type="hidden" name="lng" />
+            </div>
+          </div>
+
+          <!-- SALE FIELDS -->
+          <div class="mt-2 border-t border-line pt-4 grid gap-4">
+            <div class="grid gap-4 sm:grid-cols-3">
+              <label class="block"><span class="${LABEL}">Tier</span><select name="tier" class="${INPUT}">
+                <option value="premium">Premium</option><option value="enhanced">Enhanced</option></select></label>
+              <label class="block"><span class="${LABEL}">Period</span><select name="period" class="${INPUT}">
+                <option value="annual">Annual</option><option value="quarterly">Quarterly</option><option value="monthly">Monthly</option></select></label>
+              <label class="block"><span class="${LABEL}">Method</span><select name="method" class="${INPUT}">
+                <option value="deuna">DeUna</option><option value="transfer">Transfer</option><option value="cash">Cash</option><option value="payphone">Payphone</option><option value="other">Other</option></select></label>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3">
+              <label class="block"><span class="${LABEL}">Amount</span><input name="amount" type="number" step="0.01" value="${TIER_DEFAULT_AMOUNT.premium}" class="${INPUT}" /></label>
+              <label class="block"><span class="${LABEL}">Currency</span><input name="currency" value="USD" class="${INPUT}" /></label>
+              <label class="block"><span class="${LABEL}">Paid through</span><input name="paid_through" type="date" value="${yearFromNow()}" class="${INPUT}" /></label>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+              <label class="block"><span class="${LABEL}">Owner email</span><input name="ownerEmail" type="email" value="${esc(prefill.ownerEmail || "")}" class="${INPUT}" /></label>
+              <label class="block"><span class="${LABEL}">Owner name (optional)</span><input name="ownerName" value="${esc(prefill.ownerName || "")}" class="${INPUT}" /></label>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3"><button type="submit" class="${BTN}">Record sale</button>
+            <span id="sale-status" class="text-sm font-semibold"></span></div>
+        </form>
+        <div id="sale-result" class="mt-5"></div>
+      </div>`;
+
+    const form = $("sale-form") as HTMLFormElement;
+    let curMode = mode;
+    const setMode = (m: string) => {
+      curMode = m;
+      show("sec-existing", m === "existing"); show("sec-new", m === "new");
+      $("mode-existing").className = `rounded-md px-3.5 py-1.5 font-semibold ${m === "existing" ? "bg-cobalt text-white" : "text-slate"}`;
+      $("mode-new").className = `rounded-md px-3.5 py-1.5 font-semibold ${m === "new" ? "bg-cobalt text-white" : "text-slate"}`;
+      if (m === "new") initPicker(prefill);
+    };
+    $("mode-existing").addEventListener("click", (e) => { e.preventDefault(); setMode("existing"); });
+    $("mode-new").addEventListener("click", (e) => { e.preventDefault(); setMode("new"); });
+
+    // default amount tracks tier
+    (form.elements.namedItem("tier") as HTMLSelectElement).addEventListener("change", (e) => {
+      const t = (e.target as HTMLSelectElement).value;
+      (form.elements.namedItem("amount") as HTMLInputElement).value = String(TIER_DEFAULT_AMOUNT[t] ?? "");
+    });
+
+    if (mode === "new") initPicker(prefill);
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const status = $("sale-status"); status.className = "text-sm font-semibold text-slate"; status.textContent = "Recording…";
+      const fd = new FormData(form);
+      const body: any = {
+        tier: fd.get("tier"), period: fd.get("period"), method: fd.get("method"),
+        amount: fd.get("amount"), currency: fd.get("currency"), paid_through: fd.get("paid_through"),
+        ownerEmail: String(fd.get("ownerEmail") || "").trim(), ownerName: String(fd.get("ownerName") || "").trim(),
+      };
+      if (curMode === "existing") {
+        body.businessId = fd.get("businessId");
+        if (!body.businessId) { status.className = "text-sm font-semibold text-cinnabar"; status.textContent = "Pick a listing to upgrade."; return; }
+      } else {
+        body.name = String(fd.get("name") || "").trim();
+        body.category = fd.get("category");
+        body.address = fd.get("address");
+        body.lat = fd.get("lat"); body.lng = fd.get("lng");
+        if (!body.name) { status.className = "text-sm font-semibold text-cinnabar"; status.textContent = "Enter a business name."; return; }
+        if (!body.lat || !body.lng) { status.className = "text-sm font-semibold text-cinnabar"; status.textContent = "Click the map to set the location."; return; }
+      }
+      if (!body.ownerEmail) { status.className = "text-sm font-semibold text-cinnabar"; status.textContent = "Owner email is required."; return; }
+      try {
+        const res: any = await pb.send("/api/cuenca/record-sale", { method: "POST", body });
+        status.textContent = "";
+        await loadAll(); // refresh shared data so pipeline/listings reflect the sale
+        $("sale-result").innerHTML = `
+          <div class="rounded-2xl border border-green/40 bg-green/5 p-5">
+            <p class="font-display text-lg font-semibold text-indigo">Sale recorded ✓</p>
+            <p class="mt-1 text-sm text-ink"><strong>${esc(res.business?.name)}</strong> is now <strong>${esc(res.business?.tier)}</strong>${res.business?.published ? " and live on the map" : ""}. Subscription <strong>${esc(res.subscription?.status)}</strong>.</p>
+            ${res.owner?.created
+              ? `<div class="mt-3 rounded-lg border border-gold/50 bg-gold/10 p-3 text-sm text-ink">
+                   <p class="font-bold">📨 Send the owner their login</p>
+                   <p class="mt-1">Email: <code class="font-mono">${esc(res.owner.email)}</code></p>
+                   <p>Temporary password: <code class="font-mono select-all">${esc(res.tempPassword)}</code></p>
+                   <p class="mt-1 text-[12px] text-slate">Shown once. Send it via WhatsApp/email; they can also sign in with Google using this email.</p>
+                 </div>`
+              : `<p class="mt-2 text-sm text-slate">Linked to existing owner <code class="font-mono">${esc(res.owner?.email)}</code> — no new login needed.</p>`}
+            <p class="mt-3 text-[12px] text-slate">The public site reflects this within ~1 minute (no manual deploy).</p>
+          </div>`;
+        form.reset(); (form.elements.namedItem("paid_through") as HTMLInputElement).value = yearFromNow();
+      } catch (ex: any) {
+        status.className = "text-sm font-semibold text-cinnabar";
+        status.textContent = ex?.response?.message || ex?.message || "Failed to record sale.";
+      }
+    });
+  }
+
+  function initPicker(prefill: any = {}) {
+    const el = document.getElementById("pick-map");
+    if (!el || picker) return;
+    picker = new maplibregl.Map({
+      container: "pick-map",
+      style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+      center: [-79.004, -2.9015], zoom: 12.6, minZoom: 11, maxZoom: 18,
+      maxBounds: [[-79.075, -2.965], [-78.945, -2.845]],
+      attributionControl: { compact: true },
+    });
+    picker.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    const setPin = (lng: number, lat: number) => {
+      if (!pickerMarker) pickerMarker = new maplibregl.Marker({ color: "#d6a53c" }).setLngLat([lng, lat]).addTo(picker);
+      else pickerMarker.setLngLat([lng, lat]);
+      (document.querySelector('#sale-form [name="lat"]') as HTMLInputElement).value = lat.toFixed(6);
+      (document.querySelector('#sale-form [name="lng"]') as HTMLInputElement).value = lng.toFixed(6);
+      const ro = document.getElementById("pick-readout"); if (ro) ro.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    };
+    picker.on("click", (e: any) => setPin(e.lngLat.lng, e.lngLat.lat));
+    if (prefill.lat && prefill.lng) { picker.on("load", () => setPin(+prefill.lng, +prefill.lat)); }
+    // ensure correct sizing now that the container is visible
+    setTimeout(() => picker && picker.resize(), 50);
+  }
+
+  // ===== LISTINGS =====
+  function renderListings() {
+    const reviewed = reviewedBizIds();
+    const cats = ["", ...categories.map((c) => c.key)];
+    $("panel-listings").innerHTML = `
+      <div class="${CARD}">
+        <div class="flex flex-wrap items-end gap-3">
+          <label class="block grow"><span class="${LABEL}">Search</span><input id="lst-q" placeholder="name or address…" class="${INPUT}" /></label>
+          <label class="block"><span class="${LABEL}">Tier</span><select id="lst-tier" class="${INPUT}"><option value="">All</option><option>free</option><option>enhanced</option><option>premium</option></select></label>
+          <label class="block"><span class="${LABEL}">Category</span><select id="lst-cat" class="${INPUT}">${cats.map((k) => `<option value="${k}">${k ? esc(categories.find((c) => c.key === k)?.label || k) : "All"}</option>`).join("")}</select></label>
+          <label class="block"><span class="${LABEL}">Published</span><select id="lst-pub" class="${INPUT}"><option value="">All</option><option value="yes">Yes</option><option value="no">No</option></select></label>
+        </div>
+        <p class="mt-3 text-[12px] text-slate" id="lst-count"></p>
+        <div class="mt-2 overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead><tr class="border-b border-line text-[11px] uppercase text-slate">
+              <th class="py-2 pr-3 font-bold">Name</th><th class="py-2 pr-3 font-bold">Category</th><th class="py-2 pr-3 font-bold">Tier</th>
+              <th class="py-2 pr-3 font-bold">Pub</th><th class="py-2 pr-3 font-bold">Claimed</th><th class="py-2 pr-3 font-bold">Review</th><th class="py-2 font-bold"></th></tr></thead>
+            <tbody id="lst-rows"></tbody>
+          </table>
+        </div>
+      </div>`;
+    const draw = () => {
+      const q = ($("lst-q") as HTMLInputElement).value.toLowerCase().trim();
+      const ft = ($("lst-tier") as HTMLSelectElement).value;
+      const fc = ($("lst-cat") as HTMLSelectElement).value;
+      const fp = ($("lst-pub") as HTMLSelectElement).value;
+      const rows = businesses.filter((b) =>
+        (!q || b.name.toLowerCase().includes(q) || (b.address || "").toLowerCase().includes(q)) &&
+        (!ft || b.tier === ft) && (!fc || catKey(b) === fc) &&
+        (!fp || (fp === "yes") === !!b.published));
+      $("lst-count").textContent = `${rows.length} of ${businesses.length} listings`;
+      const tierBadge = (t: string) => `<span class="rounded-full px-2 py-0.5 text-[11px] font-bold ${PAID.includes(t) ? "bg-gold/20 text-[#7a5a12]" : "bg-marble text-slate"}">${esc(t)}</span>`;
+      $("lst-rows").innerHTML = rows.map((b) => {
+        // Owner emails live behind the users perimeter (owner-only read); sales can
+        // only see whether a listing is claimed (the owner relation id is set).
+        const claimed = b.owner ? `<span class="text-green">✓ claimed</span>` : `<span class="text-slate">—</span>`;
+        const rev = reviewed.has(b.id) ? `<span class="text-green">★ yes</span>` : `<span class="text-slate">—</span>`;
+        const action = b.tier === "free"
+          ? `<button data-upgrade="${b.id}" class="rounded-md border border-line px-2.5 py-1 text-[12px] font-semibold text-cobalt hover:bg-marble">Record a sale</button>` : "";
+        return `<tr class="border-b border-line/60">
+          <td class="py-2 pr-3 font-semibold text-ink">${esc(b.name)}</td>
+          <td class="py-2 pr-3 text-slate">${esc(catLabel(b))}</td>
+          <td class="py-2 pr-3">${tierBadge(b.tier)}</td>
+          <td class="py-2 pr-3">${b.published ? "✓" : "—"}</td>
+          <td class="py-2 pr-3">${claimed}</td>
+          <td class="py-2 pr-3">${rev}</td>
+          <td class="py-2 text-right">${action}</td></tr>`;
+      }).join("") || `<tr><td colspan="7" class="py-6 text-center text-slate">No matching listings.</td></tr>`;
+      $("lst-rows").querySelectorAll<HTMLButtonElement>("[data-upgrade]").forEach((btn) => btn.addEventListener("click", () => {
+        switchTab("sale"); renderSale({ mode: "existing", businessId: btn.dataset.upgrade });
+      }));
+    };
+    ["lst-q", "lst-tier", "lst-cat", "lst-pub"].forEach((id) => $(id).addEventListener("input", draw));
+    draw();
+  }
+
+  // ===== LEADS =====
+  function renderLeads() {
+    $("panel-leads").innerHTML = `
+      <div class="${CARD}">
+        <h3 class="font-display text-lg font-semibold text-indigo">Leads inbox</h3>
+        <p class="mt-1 text-[12px] text-slate">${leads.length} lead${leads.length === 1 ? "" : "s"}. Newest first.</p>
+        <div class="mt-4 grid gap-3">
+          ${leads.length ? leads.map((l) => `
+            <div class="rounded-lg border border-line p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="font-semibold text-ink">${esc(l.name)} <span class="ml-1 text-[12px] font-normal text-slate">${esc(l.email)}</span></p>
+                  ${l.message ? `<p class="mt-1 text-sm text-slate">${esc(l.message)}</p>` : ""}
+                  <p class="mt-1 text-[12px] text-slate">${l.expand?.category?.label ? `Interested in ${esc(l.expand.category.label)} · ` : ""}${l.source ? `via ${esc(l.source)} · ` : ""}${esc(new Date(l.created).toLocaleDateString())}</p>
+                </div>
+                <button data-convert="${l.id}" class="shrink-0 rounded-md border border-line px-3 py-1.5 text-[13px] font-semibold text-cobalt hover:bg-marble">Convert to sale →</button>
+              </div>
+            </div>`).join("") : `<p class="text-sm text-slate">No leads yet.</p>`}
+        </div>
+      </div>`;
+    $("panel-leads").querySelectorAll<HTMLButtonElement>("[data-convert]").forEach((btn) => btn.addEventListener("click", () => {
+      const l = leads.find((x) => x.id === btn.dataset.convert);
+      const prefill: any = { ownerEmail: l.email, ownerName: l.name };
+      // lead tied to an existing free business → prefill upgrade; else new business with its category
+      if (l.business && businesses.find((b) => b.id === l.business && b.tier === "free")) { prefill.mode = "existing"; prefill.businessId = l.business; }
+      else { prefill.mode = "new"; if (l.category) prefill.category = l.category; }
+      switchTab("sale"); renderSale(prefill);
+    }));
+  }
+
+  boot();
+</script>
