@@ -70,6 +70,12 @@ routerAdd("POST", "/api/cuenca/record-sale", (e) => {
       if (cur === "enhanced" || cur === "premium") {
         throw new BadRequestError(`"${biz.get("name")}" is already on a paid tier (${cur}).`);
       }
+      // Only sellable (paid) categories carry a cap and can be sold. Curated
+      // tourist categories (landmark/market/museum/outdoors) are free, map-only.
+      const cat = findOrNull(() => txApp.findRecordById("categories", biz.get("category")));
+      if (!cat || cat.get("sellable") !== true) {
+        throw new BadRequestError("That category isn't sellable.");
+      }
       biz.set("tier", tier);
     } else {
       const name = reqStr(d.name, "name");
@@ -80,6 +86,8 @@ routerAdd("POST", "/api/cuenca/record-sale", (e) => {
       let cat = findOrNull(() => txApp.findRecordById("categories", categoryRef));
       if (!cat) cat = findOrNull(() => txApp.findFirstRecordByFilter("categories", "key = {:k}", { k: categoryRef }));
       if (!cat) throw new BadRequestError(`Unknown category: ${categoryRef}.`);
+      // Only sellable (paid) categories can be sold — never a curated tourist one.
+      if (cat.get("sellable") !== true) throw new BadRequestError("That category isn't sellable.");
 
       // unique slug: base, with a short random suffix on collision.
       let slug = slugify(name);
